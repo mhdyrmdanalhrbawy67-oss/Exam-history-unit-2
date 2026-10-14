@@ -84,10 +84,16 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .msgs{display:flex;flex-direction:column;gap:12px;max-height:58vh;overflow-y:auto;padding:8px 4px}.bub{max-width:84%;padding:12px 16px;border-radius:16px;white-space:pre-wrap;line-height:1.8;word-break:break-word}.bub small{display:block;font-size:12px;opacity:.75;margin-top:4px}
 .bub.me{align-self:flex-start;background:#f3eee3;border-bottom-right-radius:4px}.bub.team{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-bottom-left-radius:4px}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--sh)}.card h3{margin:0 0 12px;color:var(--brand)}
+.wm{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.10;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='230'%3E%3Cg transform='rotate(-24 190 115)' font-family='Tahoma,Arial,sans-serif'%3E%3Ccircle cx='60' cy='112' r='13' fill='%2325D366'/%3E%3Cpath d='M54 106c0 8 6 14 14 14l3-4-4-3-2 1c-3-1-5-3-6-6l1-2-3-4z' fill='white'/%3E%3Ctext x='82' y='120' font-size='22' font-weight='700' fill='%23333'%3E01500492203%3C/text%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat;user-select:none}
+.credit{text-align:center;padding:22px 16px 90px;color:#7a6a63;font-size:14px;line-height:1.9;border-top:1px solid var(--line);margin-top:30px;background:rgba(255,255,255,.55)}
+.credit b{color:var(--brand)}.credit span{display:inline-block;margin-top:4px;color:#128c4a;font-weight:700;direction:ltr}
+.modal{z-index:60}
 </style>
 </head>
 <body>
+<div class="wm" aria-hidden="true"></div>
 <div id="app"></div>
+<div class="credit">تطوير وإدارة <b>محمد رمضان الحرباوي</b> بالتعاون مع <b>أ/ محمد حمدي الرفاعي</b><br><span>📱 واتساب: 01500492203</span></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const sb = supabase.createClient("https://ejutbpumrnvuoftvwais.supabase.co", "sb_publishable_whwX3xnNzZcNbs90ejhEGA_SiA-gPgZ");
