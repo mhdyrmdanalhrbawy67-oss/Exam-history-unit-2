@@ -67,7 +67,23 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .dock{position:sticky;bottom:12px;z-index:15;max-width:760px;margin:20px auto 0;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 34px rgba(0,0,0,.18);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .modal{position:fixed;inset:0;background:rgba(20,10,15,.55);display:grid;place-items:center;z-index:50;padding:16px;backdrop-filter:blur(3px)}.modal>div{background:#fff;border-radius:20px;padding:26px;max-width:420px;width:100%;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.35)}
 .modal h3{margin:0 0 8px;color:var(--brand);font-size:22px}.modal .r{display:flex;gap:10px;justify-content:center;margin-top:18px}
+.ro{display:flex;gap:10px;align-items:flex-start;padding:9px 13px;border-radius:11px;border:1.5px solid var(--line);margin-top:7px}.ro.good{background:#e3f6ea;border-color:#86d0a0}.ro.bad{background:#fde8e8;border-color:#f0a3a3}.ro .lt{width:28px;height:28px;font-size:14px}
+.rtabs{display:flex;gap:8px;margin:18px 0 12px;flex-wrap:wrap}.rtabs button{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:8px 20px;font:inherit;font-weight:700;cursor:pointer;color:var(--mute)}.rtabs button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.lb{display:grid;grid-template-columns:200px 1fr 70px;gap:10px;align-items:center;margin:10px 0;font-size:14px}.lb .t{height:12px;background:#f1ece0;border-radius:9px;overflow:hidden}.lb .t i{display:block;height:100%;border-radius:9px}
+.nbox{background:#fff8e6;border:1px solid #ecd9a0;border-radius:14px;padding:14px 16px;margin:14px 0}
+.mdl{background:#eef8f1;border:1px dashed #8fcfa5;border-radius:11px;padding:12px;white-space:pre-wrap;margin-top:8px}.myans{background:#fffaf0;border:1px dashed #e0cf9b;border-radius:11px;padding:12px;white-space:pre-wrap}
+@media(max-width:700px){.lb{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static;order:-1}.navgrid{grid-template-columns:repeat(10,1fr)}}
+
+/* support */
+.helpbox{margin:0 28px 14px;background:linear-gradient(135deg,#fff7e0,#fdf0c9);border:1px solid #ead9a3;border-radius:16px;padding:14px 18px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:.15s}.helpbox:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(150,110,20,.15)}.helpbox i{font-style:normal;font-size:28px}
+.dot{background:#dc2626;color:#fff;border-radius:99px;padding:0 8px;font-size:12px;font-weight:700;margin-right:6px;display:inline-block;line-height:20px}
+.catgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.catc{border:2px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;text-align:center;transition:.15s;background:#fff}.catc:hover{border-color:var(--brand2)}.catc.on{border-color:var(--brand);background:#f9e9ec;box-shadow:0 0 0 3px rgba(109,26,42,.1)}.catc i{font-style:normal;font-size:30px;display:block}.catc small{color:var(--mute);display:block;line-height:1.5}
+.tk{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;margin-top:10px;cursor:pointer;background:#fff;transition:.12s}.tk:hover{background:#fdf8f9;border-color:var(--brand2)}.tk .ci{font-size:26px}.tk .m{flex:1;min-width:0}.tk .m b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tk .m small{color:var(--mute)}
+.sbd{padding:2px 12px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap}.s-open{background:#fff1da;color:#b45309}.s-ans{background:#dff5e7;color:#15803d}.s-closed{background:#eee;color:#6b7280}
+.msgs{display:flex;flex-direction:column;gap:12px;max-height:58vh;overflow-y:auto;padding:8px 4px}.bub{max-width:84%;padding:12px 16px;border-radius:16px;white-space:pre-wrap;line-height:1.8;word-break:break-word}.bub small{display:block;font-size:12px;opacity:.75;margin-top:4px}
+.bub.me{align-self:flex-start;background:#f3eee3;border-bottom-right-radius:4px}.bub.team{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-bottom-left-radius:4px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--sh)}.card h3{margin:0 0 12px;color:var(--brand)}
 </style>
 </head>
 <body>
@@ -139,29 +155,31 @@ async function authView(mode, msg = "") {
   };
 }
 
-const topbar = (profile) => `<div class="topbar"><div class="logo"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
+const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
 async function home(user) {
   clearInterval(timerId);
-  const [{ data: profile }, { data: settings }, { data: attempts }, { count: qc }] = await Promise.all([
+  const [{ data: profile }, { data: settings }, { data: attempts }, { count: qc }, { count: unread }] = await Promise.all([
     sb.from("profiles").select("full_name,role").eq("id", user.id).single(),
     sb.from("exam_settings").select("*").eq("id", 1).single(),
     sb.from("attempts").select("*").eq("student_id", user.id).order("created_at", { ascending: false }).limit(1),
     sb.from("questions").select("id", { count: "exact", head: true }),
+    sb.from("tickets").select("id", { count: "exact", head: true }).eq("student_unread", true),
   ]);
   const a = attempts && attempts[0];
   if (a && a.status === "in_progress") return examView(a, profile, settings);
   if (a && a.status === "submitted") {
     const total = Number(a.total_override ?? (Number(a.mcq_score) + Number(a.essay_score) + Number(a.adjustment)));
-    app.innerHTML = topbar(profile) + `<div class="wrap"><div class="hcard"><div class="head"><h2>تم تسليم الامتحان ✅</h2><div>${esc(profile?.full_name)}</div></div>
-    <div style="padding:26px;text-align:center">${a.graded ? `<div class="score" style="--p:100%"><div>${total}<small>درجتك النهائية</small></div></div>` : `<p style="font-size:18px">إجاباتك اتسلّمت بنجاح 👏<br>الأسئلة المقالية بتتصحح يدويًا، وهتظهر درجتك هنا بعد اعتمادها من المدرس.</p>`}</div></div></div>`;
+    app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div class="hcard"><div class="head"><h2>تم تسليم الامتحان ✅</h2><div>${esc(profile?.full_name)}</div></div>
+    <div style="padding:26px;text-align:center">${a.graded ? `<div class="score" style="--p:100%"><div>${total}<small>درجتك النهائية</small></div></div><button class="btn" onclick="resultView('${a.id}')" style="margin-top:6px">📊 شوف أخطائي وإجاباتي والإحصائيات</button>` : `<p style="font-size:18px">إجاباتك اتسلّمت بنجاح 👏<br>الأسئلة المقالية بتتصحح يدويًا، وهتظهر درجتك هنا بعد اعتمادها من المدرس.</p>`}</div></div></div>`;
     return;
   }
   const can = (a && a.status === "not_started") || (!a && settings.is_open && settings.allow_self_start);
-  app.innerHTML = topbar(profile) + `<div class="wrap"><div class="hcard"><div class="head"><h2>${esc(settings.title)}</h2><div>أهلًا ${esc((profile?.full_name || "").split(" ")[0])} 👋</div></div>
+  app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div class="hcard"><div class="head"><h2>${esc(settings.title)}</h2><div>أهلًا ${esc((profile?.full_name || "").split(" ")[0])} 👋</div></div>
   <div class="chips"><div class="chip"><b>${settings.duration_minutes}</b><span>دقيقة</span></div><div class="chip"><b>${qc || "—"}</b><span>سؤال</span></div><div class="chip"><b>2</b><span>قسمين: اختياري + مقالي</span></div></div>
   <ul class="rules"><li>الوقت بيبدأ أول ما تضغط "ابدأ" ومش بيقف لو قفلت الصفحة أو الإنترنت قطع.</li><li>كل إجابة بتتحفظ تلقائيًا، وتقدر ترجع تكمل من نفس المكان.</li><li>الاختياري بيتصحح تلقائيًا، والمقالي بيصححه المدرس يدويًا.</li><li>لما الوقت يخلص الامتحان بيتسلّم تلقائيًا.</li></ul>
+  <div class="helpbox" onclick="supportView()"><i>💬</i><div><b>الدعم والمنتدى</b>${unread ? `<span class="dot">${unread} رد جديد</span>` : ""}<br><small style="color:#7a5b10">عندك سؤال في المادة أو مشكلة في الموقع؟ ابعت لفريق الدعم العلمي أو الفني وهيردوا عليك هنا.</small></div></div>
   <div class="cta">${can ? `<div class="err" id="er"></div><button class="btn" id="st" style="font-size:19px;padding:15px 44px">ابدأ الامتحان</button>` : `<p class="err" style="font-size:16px">الامتحان غير متاح لك حاليًا. تواصل مع المدرس لفتح محاولة.</p>`}</div></div></div>`;
   if (can) $("#st").onclick = async () => {
     const ok = await modal("جاهز تبدأ؟", `هيبدأ العد التنازلي (${settings.duration_minutes} دقيقة) دلوقتي.`, [{ t: "ابدأ الآن", v: true }, { t: "رجوع", v: false, alt: true }]);
@@ -246,6 +264,107 @@ async function examView(attempt, profile, settings) {
   };
   tick(); timerId = setInterval(tick, 1000); refresh();
 }
+/* ===== الدعم والمنتدى ===== */
+let supTimer = null;
+const CATS = { scientific: ["🎓", "الدعم العلمي", "أسئلة عن المادة والمحتوى"], technical: ["🛠️", "الدعم الفني", "مشاكل الدخول أو الموقع أو الامتحان"] };
+const SLAB = { open: ["بانتظار رد الفريق", "s-open"], answered: ["تم الرد", "s-ans"], closed: ["مغلقة", "s-closed"] };
+const fdt = (d) => new Date(d).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
+const supErr = (m) => (m.includes("TOO_MANY") ? "عندك 5 محادثات بانتظار الرد، استنى الرد عليها الأول" : /function|relation|schema cache/i.test(m) ? "الدعم لسه متفعّلش - تواصل مع المدرس" : m.includes("BAD_SUBJECT") ? "عنوان الرسالة لازم يكون من 3 لـ 120 حرف" : m);
+
+async function supportView(ticketId) {
+  clearInterval(supTimer); clearInterval(timerId);
+  const { data: { user } } = await sb.auth.getUser();
+  const { data: profile } = await sb.from("profiles").select("full_name").eq("id", user.id).single();
+  if (ticketId) return threadView(user, profile, ticketId);
+  const { data: tickets, error } = await sb.from("tickets").select("*").eq("student_id", user.id).order("last_message_at", { ascending: false });
+  let cat = null;
+  app.innerHTML = topbar(profile) + `<div class="wrap"><div class="row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap"><h2 style="margin:0;color:var(--brand)">💬 الدعم والمنتدى</h2><button class="btn alt sm" onclick="boot()">← رجوع</button></div>
+  <div class="card"><h3>رسالة جديدة</h3><div class="catgrid">${Object.entries(CATS).map(([k, v]) => `<div class="catc" data-c="${k}"><i>${v[0]}</i><b>${v[1]}</b><small>${v[2]}</small></div>`).join("")}</div>
+    <label class="l">عنوان الرسالة</label><input id="sj" maxlength="120" placeholder="مثال: استفسار عن الدرس الثالث">
+    <label class="l">رسالتك</label><textarea id="bd" maxlength="3000" placeholder="اكتب سؤالك أو مشكلتك بالتفصيل..."></textarea>
+    <div class="err" id="er"></div><button class="btn" id="snd">إرسال لفريق الدعم</button></div>
+  <div class="card"><h3>محادثاتي</h3>${error ? `<div class="err">${esc(supErr(error.message))}</div>` : (tickets || []).map((t) => `<div class="tk" onclick="supportView('${t.id}')"><div class="ci">${CATS[t.category][0]}</div><div class="m"><b>${esc(t.subject)}${t.student_unread ? `<span class="dot">جديد</span>` : ""}</b><small>${CATS[t.category][1]} • ${fdt(t.last_message_at)}</small></div><span class="sbd ${SLAB[t.status][1]}">${SLAB[t.status][0]}</span></div>`).join("") || `<p style="color:var(--mute);margin:0">لسه مفيش محادثات. ابعت أول رسالة من فوق.</p>`}</div></div>`;
+  document.querySelectorAll(".catc").forEach((el) => (el.onclick = () => { cat = el.dataset.c; document.querySelectorAll(".catc").forEach((x) => x.classList.toggle("on", x === el)); }));
+  $("#snd").onclick = async () => {
+    const er = (t) => { $("#er").textContent = t; $("#snd").disabled = false; };
+    $("#snd").disabled = true; $("#er").textContent = "";
+    const subject = $("#sj").value.trim(), body = $("#bd").value.trim();
+    if (!cat) return er("اختار نوع الدعم: علمي أو فني"); if (subject.length < 3) return er("اكتب عنوان للرسالة"); if (!body) return er("اكتب رسالتك");
+    const { data, error } = await sb.rpc("create_ticket", { p_category: cat, p_subject: subject, p_body: body });
+    if (error) return er(supErr(error.message));
+    supportView(data);
+  };
+}
+
+async function threadView(user, profile, id) {
+  app.innerHTML = topbar(profile) + `<div class="wrap"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><div id="th"></div><button class="btn alt sm" onclick="supportView()">← كل المحادثات</button></div>
+  <div class="msgs" id="msgs"></div>
+  <div id="rbox" style="margin-top:14px"><textarea id="rp" maxlength="3000" placeholder="اكتب ردك..." style="min-height:90px"></textarea><div class="err" id="er"></div><button class="btn" id="rs">إرسال الرد</button></div></div></div>`;
+  let last = -1;
+  async function load() {
+    const [{ data: t }, { data: ms }] = await Promise.all([sb.from("tickets").select("*").eq("id", id).single(), sb.from("ticket_messages").select("*").eq("ticket_id", id).order("created_at")]);
+    if (!t) { clearInterval(supTimer); return supportView(); }
+    $("#th").innerHTML = `<b style="font-size:19px">${CATS[t.category][0]} ${esc(t.subject)}</b><br><small style="color:var(--mute)">${CATS[t.category][1]}</small> <span class="sbd ${SLAB[t.status][1]}">${SLAB[t.status][0]}</span>`;
+    if (ms.length !== last) {
+      last = ms.length;
+      $("#msgs").innerHTML = ms.map((m) => `<div class="bub ${m.sender_role === "staff" ? "team" : "me"}">${esc(m.body)}<small>${m.sender_role === "staff" ? "فريق " + CATS[t.category][1] : "أنت"} • ${fdt(m.created_at)}</small></div>`).join("");
+      const box = $("#msgs"); box.scrollTop = box.scrollHeight;
+    }
+  }
+  await load(); sb.rpc("ticket_seen", { p_ticket: id });
+  supTimer = setInterval(() => { if (!document.getElementById("msgs")) return clearInterval(supTimer); load(); }, 10000);
+  $("#rs").onclick = async () => {
+    const body = $("#rp").value.trim(); if (!body) return;
+    $("#rs").disabled = true;
+    const { error } = await sb.rpc("reply_ticket", { p_ticket: id, p_body: body });
+    $("#rs").disabled = false;
+    if (error) { $("#er").textContent = supErr(error.message); return; }
+    $("#rp").value = ""; $("#er").textContent = ""; load();
+  };
+}
+
+/* ================= نتيجتي التفصيلية ================= */
+const LESSONS = { 1: "الدرس 1: سياسات الاحتلال", 2: "الدرس 2: صمود الشعب ومقاومة الاحتلال", 3: "الدرس 3: ثورة 23 يوليو 1952", 4: "الدرس 4: الهوية الوطنية والاستعمار الجديد" };
+async function resultView(aid) {
+  clearInterval(timerId);
+  const { data: { user } } = await sb.auth.getUser();
+  const [{ data: profile }, { data: r, error }] = await Promise.all([sb.from("profiles").select("full_name").eq("id", user.id).single(), sb.rpc("get_my_result", { p_attempt: aid })]);
+  if (error || !r) {
+    app.innerHTML = topbar(profile, 0) + `<div class="wrap"><div class="card2"><p class="err">${/NOT_AVAILABLE/.test(error?.message || "") ? "النتيجة التفصيلية لسه ما اتاحتش - هتظهر بعد اعتماد المدرس." : "تعذر تحميل النتيجة. اطلب من المسؤول تشغيل ملف results.sql"}</p><button class="btn alt sm" onclick="backHome()">← رجوع</button></div></div>`; return;
+  }
+  const qs = r.questions || [], mcq = qs.filter((q) => q.kind === "mcq"), essay = qs.filter((q) => q.kind === "essay");
+  const ok = mcq.filter((q) => q.choice !== null && q.choice === q.correct), none = mcq.filter((q) => q.choice === null || q.choice === undefined), bad = mcq.filter((q) => q.choice !== null && q.choice !== undefined && q.choice !== q.correct);
+  const pct = r.max ? Math.round((Number(r.total) / Number(r.max)) * 100) : 0;
+  const lessons = {}; mcq.forEach((q) => { const L = lessons[q.lesson] || (lessons[q.lesson] = { t: 0, c: 0 }); L.t++; if (q.choice === q.correct) L.c++; });
+  let tab = "mcq", showAll = false;
+  const mcqCard = (q) => `<div class="q" style="margin-bottom:14px"><div class="qh"><div class="qn">${q.position}</div><div class="t">${esc(q.text)}</div><span class="mk">${q.choice === q.correct ? "✓ صح" : q.choice === null || q.choice === undefined ? "بدون إجابة" : "✗ خطأ"}</span></div>
+    ${q.options.map((o, i) => `<div class="ro ${i === q.correct ? "good" : i === q.choice ? "bad" : ""}"><span class="lt">${LET[i]}</span><span style="flex:1">${esc(o)}</span>${i === q.correct ? "<b style='color:var(--ok)'>✓ الصحيحة</b>" : i === q.choice ? "<b style='color:var(--bad)'>إجابتك</b>" : ""}</div>`).join("")}</div>`;
+  const essayCard = (q) => `<div class="q"><div class="qh"><div class="qn">${q.position}</div><div class="t">${esc(q.text)}</div><span class="mk">${q.essay_score ?? "—"} / ${q.marks}</span></div>
+    <label class="l">إجابتك</label><div class="myans">${esc(q.essay_text || "— لم تُجب —")}</div>
+    ${q.feedback ? `<div class="nbox" style="margin:10px 0 0"><b>💬 تعليق المدرس:</b> ${esc(q.feedback)}</div>` : ""}
+    <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:700;color:var(--ok)">📖 نموذج الإجابة من الكتاب</summary><div class="mdl">${esc(q.model_answer || "")}</div></details></div>`;
+  const draw = () => {
+    const list = $("#rlist");
+    if (tab === "mcq") {
+      const arr = showAll ? mcq : [...bad, ...none].sort((a, b) => a.position - b.position);
+      list.innerHTML = `<div style="margin-bottom:12px"><button class="btn alt sm" id="tg">${showAll ? "عرض أخطائي فقط" : "عرض كل الأسئلة"}</button></div>` + (arr.map(mcqCard).join("") || `<div class="card2" style="text-align:center">🎉 ما غلطتش في أي سؤال اختياري!</div>`);
+      $("#tg").onclick = () => { showAll = !showAll; draw(); };
+    } else list.innerHTML = essay.map(essayCard).join("");
+    document.querySelectorAll(".rtabs button").forEach((b) => b.classList.toggle("on", b.dataset.t === tab));
+  };
+  app.innerHTML = topbar(profile, 0) + `<div class="wrap"><button class="btn alt sm" onclick="backHome()">← رجوع</button>
+  <div class="hcard" style="margin-top:14px"><div class="head"><h2>نتيجتي التفصيلية</h2><div>${esc(profile?.full_name)}</div></div>
+    <div style="padding:20px 24px;text-align:center"><div class="score" style="--p:${pct}%"><div>${r.total}<small>من ${r.max} (${pct}%)</small></div></div></div>
+    <div class="chips"><div class="chip"><b style="color:var(--ok)">${ok.length}</b><span>اختياري صح</span></div><div class="chip"><b style="color:var(--bad)">${bad.length}</b><span>اختياري خطأ</span></div><div class="chip"><b>${none.length}</b><span>بدون إجابة</span></div>
+      <div class="chip"><b>${r.mcq_score}</b><span>درجة الاختياري</span></div><div class="chip"><b>${r.essay_score}</b><span>درجة المقالي</span></div><div class="chip"><b>${r.rank}<small style="font-size:14px"> / ${r.count}</small></b><span>ترتيبك في الدفعة</span></div><div class="chip"><b>${r.avg ?? "—"}</b><span>متوسط الدفعة</span></div></div>
+    <div style="padding:0 24px 20px"><h3 style="color:var(--brand);margin:6px 0">مستواك في كل درس (الاختياري)</h3>
+    ${Object.keys(lessons).sort().map((k) => { const L = lessons[k], p = Math.round((L.c / L.t) * 100); return `<div class="lb"><span>${LESSONS[k] || "درس " + k}</span><div class="t"><i style="width:${p}%;background:${p >= 70 ? "var(--ok)" : p >= 50 ? "var(--gold)" : "var(--bad)"}"></i></div><b>${L.c}/${L.t}</b></div>`; }).join("")}
+    ${r.notes ? `<div class="nbox"><b>📝 ملاحظات المدرس:</b><br>${esc(r.notes)}</div>` : ""}</div></div>
+  <div class="rtabs"><button data-t="mcq">❌ الاختياري (${bad.length + none.length} أخطاء)</button><button data-t="essay">✍️ المقالي (${essay.length})</button></div><div id="rlist"></div></div>`;
+  document.querySelectorAll(".rtabs button").forEach((b) => (b.onclick = () => { tab = b.dataset.t; draw(); }));
+  draw(); window.scrollTo(0, 0);
+}
+
 boot();
 </script>
 </body>
