@@ -84,14 +84,24 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .msgs{display:flex;flex-direction:column;gap:12px;max-height:58vh;overflow-y:auto;padding:8px 4px}.bub{max-width:84%;padding:12px 16px;border-radius:16px;white-space:pre-wrap;line-height:1.8;word-break:break-word}.bub small{display:block;font-size:12px;opacity:.75;margin-top:4px}
 .bub.me{align-self:flex-start;background:#f3eee3;border-bottom-right-radius:4px}.bub.team{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-bottom-left-radius:4px}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--sh)}.card h3{margin:0 0 12px;color:var(--brand)}
-.wm{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.10;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='230'%3E%3Cg transform='rotate(-24 190 115)' font-family='Tahoma,Arial,sans-serif'%3E%3Ccircle cx='60' cy='112' r='13' fill='%2325D366'/%3E%3Cpath d='M54 106c0 8 6 14 14 14l3-4-4-3-2 1c-3-1-5-3-6-6l1-2-3-4z' fill='white'/%3E%3Ctext x='82' y='120' font-size='22' font-weight='700' fill='%23333'%3E01500492203%3C/text%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat;user-select:none}
 .credit{text-align:center;padding:22px 16px 90px;color:#7a6a63;font-size:14px;line-height:1.9;border-top:1px solid var(--line);margin-top:30px;background:rgba(255,255,255,.55)}
 .credit b{color:var(--brand)}.credit span{display:inline-block;margin-top:4px;color:#128c4a;font-weight:700;direction:ltr}
 .modal{z-index:60}
+.card2{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--sh)}
+.kinds{display:flex;flex-wrap:wrap;gap:8px}.kc{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:7px 16px;cursor:pointer;font-weight:700;color:#4b5563;transition:.12s}.kc:hover{border-color:var(--brand2)}.kc.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.tag{display:inline-block;background:#f3eee3;color:#6b4f2a;border-radius:99px;padding:1px 10px;font-size:12px;font-weight:700;margin-right:6px}
+.botfab{position:fixed;left:16px;bottom:16px;z-index:70;background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border:0;border-radius:99px;padding:12px 18px;font:inherit;font-weight:800;cursor:pointer;box-shadow:0 10px 26px rgba(15,118,110,.4)}
+.bot{position:fixed;left:16px;bottom:74px;z-index:71;width:360px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 100px);background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);border:1px solid var(--line);display:none;flex-direction:column;overflow:hidden}
+.bot.open{display:flex}.bot .bh{background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:800}.bot .bh button{background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer}
+.bot .bm{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;background:#f8f6f0}.bot .b{max-width:88%;padding:9px 13px;border-radius:14px;white-space:pre-wrap;line-height:1.75;font-size:15px}
+.bot .b.me{align-self:flex-start;background:#0f766e;color:#fff;border-bottom-right-radius:4px}.bot .b.bt{align-self:flex-end;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.bot .chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-top:1px solid var(--line);background:#fff;max-height:96px;overflow-y:auto}.bot .chips button{border:1px solid #99d5cf;background:#effaf8;color:#0f766e;border-radius:99px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.bot .bi{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line);background:#fff}.bot .bi input{padding:9px 12px}.bot .bi button{padding:8px 14px}
+.bot .esc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.bot .esc a,.bot .esc button{border:0;border-radius:10px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;text-decoration:none}.bot .esc .wa{background:#16a34a}
+@media(max-width:500px){.bot{left:8px;right:8px;width:auto;max-width:none}}
 </style>
 </head>
 <body>
-<div class="wm" aria-hidden="true"></div>
 <div id="app"></div>
 <div class="credit">تطوير وإدارة <b>محمد رمضان الحرباوي</b> بالتعاون مع <b>أ/ محمد حمدي الرفاعي</b><br><span>📱 واتساب: 01500492203</span></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -117,7 +127,9 @@ function modal(title, body, buttons) {
 
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
-  session ? home(session.user) : authView("login");
+  if (!session) return authView("login");
+  try { await sb.rpc("ensure_profile"); } catch (e) {}
+  home(session.user);
 }
 
 async function authView(mode, msg = "") {
@@ -192,7 +204,7 @@ async function home(user) {
     if (!ok) return;
     $("#st").disabled = true;
     const { error } = await sb.rpc("start_attempt");
-    if (error) { $("#er").textContent = "تعذر بدء الامتحان: " + error.message; $("#st").disabled = false; return; }
+    if (error) { $("#er").textContent = (/foreign key|attempts_student/i.test(error.message) ? "حسابك محتاج تحديث بسيط. حدّث الصفحة وجرّب تاني، ولو استمرت المشكلة كلّم الدعم الفني من زر الدعم." : "تعذر بدء الامتحان: " + error.message); $("#st").disabled = false; return; }
     home(user);
   };
 }
@@ -273,30 +285,36 @@ async function examView(attempt, profile, settings) {
 /* ===== الدعم والمنتدى ===== */
 let supTimer = null;
 const CATS = { scientific: ["🎓", "الدعم العلمي", "أسئلة عن المادة والمحتوى"], technical: ["🛠️", "الدعم الفني", "مشاكل الدخول أو الموقع أو الامتحان"] };
+const KINDS = { problem: ["⚠️", "مشكلة"], opinion: ["💭", "رأي"], suggestion: ["💡", "اقتراح"], not_graded: ["📝", "عدم تصحيح"], question: ["❓", "استفسار"], complaint: ["📣", "شكوى"] };
 const SLAB = { open: ["بانتظار رد الفريق", "s-open"], answered: ["تم الرد", "s-ans"], closed: ["مغلقة", "s-closed"] };
 const fdt = (d) => new Date(d).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
-const supErr = (m) => (m.includes("TOO_MANY") ? "عندك 5 محادثات بانتظار الرد، استنى الرد عليها الأول" : /function|relation|schema cache/i.test(m) ? "الدعم لسه متفعّلش - تواصل مع المدرس" : m.includes("BAD_SUBJECT") ? "عنوان الرسالة لازم يكون من 3 لـ 120 حرف" : m);
+const supErr = (m) => (m.includes("TOO_MANY") ? "عندك 5 محادثات بانتظار الرد، استنى الرد عليها الأول" : /foreign key|profiles/i.test(m) ? "حسابك محتاج تحديث بسيط، حدّث الصفحة وجرّب تاني" : /function|relation|schema cache/i.test(m) ? "الدعم لسه متفعّلش - تواصل مع المدرس" : m.includes("BAD_SUBJECT") ? "عنوان الرسالة لازم يكون من 3 لـ 120 حرف" : m);
 
-async function supportView(ticketId) {
+async function supportView(ticketId, preset) {
   clearInterval(supTimer); clearInterval(timerId);
   const { data: { user } } = await sb.auth.getUser();
   const { data: profile } = await sb.from("profiles").select("full_name").eq("id", user.id).single();
   if (ticketId) return threadView(user, profile, ticketId);
   const { data: tickets, error } = await sb.from("tickets").select("*").eq("student_id", user.id).order("last_message_at", { ascending: false });
-  let cat = null;
+  let cat = null, kind = null;
   app.innerHTML = topbar(profile) + `<div class="wrap"><div class="row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap"><h2 style="margin:0;color:var(--brand)">💬 الدعم والمنتدى</h2><button class="btn alt sm" onclick="boot()">← رجوع</button></div>
   <div class="card"><h3>رسالة جديدة</h3><div class="catgrid">${Object.entries(CATS).map(([k, v]) => `<div class="catc" data-c="${k}"><i>${v[0]}</i><b>${v[1]}</b><small>${v[2]}</small></div>`).join("")}</div>
+    <label class="l">نوع الاستفسار</label><div class="kinds">${Object.entries(KINDS).map(([k, v]) => `<span class="kc" data-k="${k}">${v[0]} ${v[1]}</span>`).join("")}</div>
     <label class="l">عنوان الرسالة</label><input id="sj" maxlength="120" placeholder="مثال: استفسار عن الدرس الثالث">
     <label class="l">رسالتك</label><textarea id="bd" maxlength="3000" placeholder="اكتب سؤالك أو مشكلتك بالتفصيل..."></textarea>
     <div class="err" id="er"></div><button class="btn" id="snd">إرسال لفريق الدعم</button></div>
-  <div class="card"><h3>محادثاتي</h3>${error ? `<div class="err">${esc(supErr(error.message))}</div>` : (tickets || []).map((t) => `<div class="tk" onclick="supportView('${t.id}')"><div class="ci">${CATS[t.category][0]}</div><div class="m"><b>${esc(t.subject)}${t.student_unread ? `<span class="dot">جديد</span>` : ""}</b><small>${CATS[t.category][1]} • ${fdt(t.last_message_at)}</small></div><span class="sbd ${SLAB[t.status][1]}">${SLAB[t.status][0]}</span></div>`).join("") || `<p style="color:var(--mute);margin:0">لسه مفيش محادثات. ابعت أول رسالة من فوق.</p>`}</div></div>`;
+  <div class="card"><h3>محادثاتي</h3>${error ? `<div class="err">${esc(supErr(error.message))}</div>` : (tickets || []).map((t) => `<div class="tk" onclick="supportView('${t.id}')"><div class="ci">${CATS[t.category][0]}</div><div class="m"><b>${esc(t.subject)}${t.student_unread ? `<span class="dot">جديد</span>` : ""}</b><small>${CATS[t.category][1]} • ${KINDS[t.kind || "problem"][0]} ${KINDS[t.kind || "problem"][1]} • ${fdt(t.last_message_at)}</small></div><span class="sbd ${SLAB[t.status][1]}">${SLAB[t.status][0]}</span></div>`).join("") || `<p style="color:var(--mute);margin:0">لسه مفيش محادثات. ابعت أول رسالة من فوق.</p>`}</div></div>`;
   document.querySelectorAll(".catc").forEach((el) => (el.onclick = () => { cat = el.dataset.c; document.querySelectorAll(".catc").forEach((x) => x.classList.toggle("on", x === el)); }));
+  const pickCat = (c) => { cat = c; document.querySelectorAll(".catc").forEach((x) => x.classList.toggle("on", x.dataset.c === c)); };
+  const pickKind = (k) => { kind = k; document.querySelectorAll(".kc").forEach((x) => x.classList.toggle("on", x.dataset.k === k)); };
+  document.querySelectorAll(".kc").forEach((el) => (el.onclick = () => pickKind(el.dataset.k)));
+  if (preset) { if (preset.cat) pickCat(preset.cat); if (preset.kind) pickKind(preset.kind); if (preset.subject) $("#sj").value = preset.subject; if (preset.body) $("#bd").value = preset.body; setTimeout(() => $("#bd").focus(), 100); }
   $("#snd").onclick = async () => {
     const er = (t) => { $("#er").textContent = t; $("#snd").disabled = false; };
     $("#snd").disabled = true; $("#er").textContent = "";
     const subject = $("#sj").value.trim(), body = $("#bd").value.trim();
-    if (!cat) return er("اختار نوع الدعم: علمي أو فني"); if (subject.length < 3) return er("اكتب عنوان للرسالة"); if (!body) return er("اكتب رسالتك");
-    const { data, error } = await sb.rpc("create_ticket", { p_category: cat, p_subject: subject, p_body: body });
+    if (!cat) return er("اختار نوع الدعم: علمي أو فني"); if (!kind) return er("اختار نوع الاستفسار (مشكلة، رأي، اقتراح...)"); if (subject.length < 3) return er("اكتب عنوان للرسالة"); if (!body) return er("اكتب رسالتك");
+    const { data, error } = await sb.rpc("create_ticket", { p_category: cat, p_kind: kind, p_subject: subject, p_body: body });
     if (error) return er(supErr(error.message));
     supportView(data);
   };
@@ -310,7 +328,7 @@ async function threadView(user, profile, id) {
   async function load() {
     const [{ data: t }, { data: ms }] = await Promise.all([sb.from("tickets").select("*").eq("id", id).single(), sb.from("ticket_messages").select("*").eq("ticket_id", id).order("created_at")]);
     if (!t) { clearInterval(supTimer); return supportView(); }
-    $("#th").innerHTML = `<b style="font-size:19px">${CATS[t.category][0]} ${esc(t.subject)}</b><br><small style="color:var(--mute)">${CATS[t.category][1]}</small> <span class="sbd ${SLAB[t.status][1]}">${SLAB[t.status][0]}</span>`;
+    $("#th").innerHTML = `<b style="font-size:19px">${CATS[t.category][0]} ${esc(t.subject)}</b><br><small style="color:var(--mute)">${CATS[t.category][1]}</small> <span class="tag">${KINDS[t.kind || "problem"][0]} ${KINDS[t.kind || "problem"][1]}</span> <span class="sbd ${SLAB[t.status][1]}">${SLAB[t.status][0]}</span>`;
     if (ms.length !== last) {
       last = ms.length;
       $("#msgs").innerHTML = ms.map((m) => `<div class="bub ${m.sender_role === "staff" ? "team" : "me"}">${esc(m.body)}<small>${m.sender_role === "staff" ? "فريق " + CATS[t.category][1] : "أنت"} • ${fdt(m.created_at)}</small></div>`).join("");
@@ -370,6 +388,64 @@ async function resultView(aid) {
   document.querySelectorAll(".rtabs button").forEach((b) => (b.onclick = () => { tab = b.dataset.t; draw(); }));
   draw(); window.scrollTo(0, 0);
 }
+
+const backHome = () => boot();
+
+/* ================= المساعد الذكي (قواعد جاهزة - بدون ذكاء اصطناعي خارجي) ================= */
+const WA = "https://wa.me/201500492203";
+const norm = (t) => String(t || "").replace(/[\u064B-\u0652\u0640]/g, "").replace(/[أإآ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/[؟?!.,،]/g, " ").toLowerCase();
+const ESC = { tech: { cat: "technical", kind: "problem" }, sci: { cat: "scientific", kind: "question" }, grade: { cat: "scientific", kind: "not_graded", subject: "عدم تصحيح" } };
+const KB = [
+  { k: ["السلام", "اهلا", "مرحبا", "هاي", "ازيك", "صباح", "مساء"], a: "أهلًا بيك! 👋 أنا المساعد الذكي. اسألني عن التسجيل أو الدخول أو الامتحان، وأنا هرشدك خطوة بخطوة." },
+  { k: ["حساب جديد", "انشاء حساب", "اعمل حساب", "اسجل", "تسجيل حساب", "سجل حساب", "مش مسجل", "اول مره", "التسجيل"], a: "لتسجيل حساب جديد:\n1) اضغط تبويب «حساب جديد».\n2) اكتب اسمك الكامل ورقم موبايلك (الإيميل اختياري).\n3) اختار السنتر بتاعك (أو «بدون / أونلاين»).\n4) اكتب كلمة مرور 6 أحرف أو أكثر واضغط «إنشاء الحساب»." },
+  { k: ["تسجيل دخول", "ادخل", "دخول", "login", "الدخول", "ازاي ادخل", "افتح حسابي"], a: "للدخول: اكتب رقم الموبايل اللي سجلت بيه (أو الإيميل) وكلمة المرور، واضغط «دخول».\nلو لسه معندكش حساب اضغط «حساب جديد» الأول." },
+  { k: ["نسيت", "كلمه المرور", "كلمه السر", "الباسورد", "password", "باسورد", "استرجاع", "رمز الدخول"], a: "للأسف مفيش استرجاع تلقائي لكلمة المرور حاليًا. ابعت رسالة للدعم الفني باسمك ورقم موبايلك وفريق الدعم هيساعدك.", e: { ...ESC.tech, subject: "نسيت كلمة المرور" } },
+  { k: ["مش عارف ادخل", "مش بيدخل", "لا استطيع الدخول", "مش راضي", "غير صحيحه", "بيقولي البيانات", "خطا في الدخول", "مشكله في الدخول", "مش قادر ادخل", "البيانات غير"], a: "جرّب الآتي:\n• تأكد إن رقم الموبايل أو الإيميل مكتوب صح ومن غير مسافات.\n• تأكد من كلمة المرور (حالة الأحرف ولغة الكيبورد).\n• ادخل من صفحة الطالب (مش لوحة المدرسين).\nلو لسه مش بيدخل كلّم الدعم الفني.", e: { ...ESC.tech, subject: "مشكلة في تسجيل الدخول" } },
+  { k: ["ابدا الامتحان", "ابدا", "فتح الامتحان", "مش ظاهر", "زر البدء", "مش قادر ابدا", "غير متاح", "مش متاح", "تعذر بدء", "خطا بدء", "ازاي ابدا", "بدايه الامتحان"], a: "لبدء الامتحان اضغط «ابدأ الامتحان» من الصفحة الرئيسية.\nلو ظهرت «غير متاح لك» يبقى الامتحان لسه مش مفتوح لك — المدرس لازم يفتحلك محاولة.\nلو ظهرت رسالة خطأ عند البدء، حدّث الصفحة وجرّب تاني، ولو استمرت ابعت للدعم الفني.", e: { ...ESC.tech, subject: "مشكلة في بدء الامتحان" } },
+  { k: ["الوقت", "المده", "220", "العداد", "ساعه", "كام دقيقه", "وقت الامتحان", "مده الامتحان"], a: "مدة الامتحان 220 دقيقة من لحظة ضغطك على «ابدأ الامتحان». العداد محسوب من السيرفر فمش بيقف لو قفلت الصفحة أو النت قطع، ولما الوقت يخلص الامتحان بيتسلّم تلقائيًا." },
+  { k: ["النت", "الانترنت", "قطع", "فصل", "وقع", "الشبكه"], a: "لو النت قطع وقت الامتحان: العداد مكمل من السيرفر. ارجع افتح الموقع وسجّل دخول وهتكمل من نفس المكان وإجاباتك المحفوظة موجودة." },
+  { k: ["بيتحفظ", "ضاعت", "اختفت", "فقدت", "مش بيحفظ", "فشل الحفظ", "الحفظ", "اجابتي راحت", "مسحت"], a: "كل إجابة بتتحفظ تلقائيًا. اتأكد إن مكتوب «✓ تم الحفظ» فوق. لو ظهر «فشل الحفظ» تأكد من الإنترنت وماتقفلش الصفحة.\nلو إجابات اختفت فعلًا كلّم الدعم الفني فورًا.", e: { ...ESC.tech, subject: "إجاباتي اختفت أو لا تُحفظ" }, big: true },
+  { k: ["تسليم", "اسلم", "سلم", "انهي الامتحان", "انهاء", "خلصت", "اخلص"], a: "لما تخلص اضغط «تسليم الامتحان» وأكّد. بعد التسليم مش هتقدر تعدّل. راجع خريطة الأسئلة الأول عشان ماتسيبش سؤال من غير إجابة." },
+  { k: ["الدرجه", "النتيجه", "درجتي", "امتى تظهر", "نتيجتي", "الاخطاء", "اخطائي"], a: "درجتك بتظهر بعد ما المدرس يصحح الأسئلة المقالية ويعتمد الدرجة. وقتها هتلاقي زر «شوف أخطائي وإجاباتي والإحصائيات» في صفحتك." },
+  { k: ["مصححش", "متصححش", "لسه ما اتصححش", "تاخر التصحيح", "عدم تصحيح", "التصحيح", "مقالي", "المقالي"], a: "الأسئلة المقالية بيصححها المدرس يدويًا فبتاخد وقت. لو شايف إن التصحيح اتأخر أو سؤال ما اتصححش، ابعت للدعم العلمي بنوع «عدم تصحيح».", e: ESC.grade },
+  { k: ["المنهج", "الدرس", "اجابه نموذجيه", "شرح", "المادة", "معلومه", "الحمله الفرنسيه", "ثوره", "مصطفي كامل", "سعد زغلول", "تاريخ"], a: "الأسئلة عن المادة والمحتوى بيجاوب عليها فريق الدعم العلمي. افتح محادثة معاهم واكتب سؤالك بالتفصيل.", e: ESC.sci },
+  { k: ["المنتدي", "الدعم", "تواصل", "كلم", "اكلم", "مدرس", "رساله", "شكوي", "اقتراح", "رايي", "رأي"], a: "تقدر تبعت لفريق الدعم من زر «💬 الدعم والمنتدى»: اختار علمي أو فني، ونوع الاستفسار (مشكلة، رأي، اقتراح، عدم تصحيح...). هيردوا عليك هناك وتقدر ترد عليهم.", e: ESC.tech },
+];
+const BIG = ["مشكله كبيره", "عاجل", "ضاع", "اختفي", "مش شغال", "ايرور", "error", "خطا", "المشكله", "مستعجل", "ضروري"];
+const CHIPS = ["كيف أسجل حساب؟", "كيف أدخل؟", "نسيت كلمة المرور", "كيف أبدأ الامتحان؟", "الوقت والتسليم", "إجاباتي مش بتتحفظ", "متى تظهر درجتي؟", "عايز أكلم الدعم"];
+function botAnswer(text) {
+  const t = norm(text); let best = null, sc = 0;
+  for (const it of KB) { let n = 0; for (const k of it.k) if (t.includes(norm(k))) n += k.length > 4 ? 2 : 1; if (n > sc) { sc = n; best = it; } }
+  const big = BIG.some((w) => t.includes(norm(w)));
+  if (!best) return { a: "مش متأكد إني فهمت سؤالك 🤔\nجرّب تختار من الأسئلة الجاهزة تحت، أو أحوّلك لفريق الدعم يساعدك بنفسه.", e: ESC.tech, big: true };
+  return { a: best.a, e: best.e, big: big || best.big };
+}
+async function botEscalate(i) { const e = botEsc[i]; $("#bot").classList.remove("open"); const { data: { session } } = await sb.auth.getSession(); if (session) supportView(null, e); else window.open(WA, "_blank"); }
+let botEsc = [];
+function initBot() {
+  if ($("#botfab")) return;
+  const fab = document.createElement("button"); fab.id = "botfab"; fab.className = "botfab"; fab.textContent = "🤖 مساعد ذكي";
+  const box = document.createElement("div"); box.id = "bot"; box.className = "bot";
+  box.innerHTML = `<div class="bh"><span>🤖 المساعد الذكي</span><button id="botx" aria-label="إغلاق">✕</button></div><div class="bm" id="bm"></div>
+  <div class="chips" id="bc">${CHIPS.map((c) => `<button>${c}</button>`).join("")}</div><div class="bi"><input id="bin" placeholder="اكتب سؤالك هنا..."><button class="btn sm" id="bsend">إرسال</button></div>`;
+  document.body.append(fab, box);
+  const add = (cls, html) => { const d = document.createElement("div"); d.className = "b " + cls; d.innerHTML = html; $("#bm").appendChild(d); $("#bm").scrollTop = $("#bm").scrollHeight; return d; };
+  add("bt", "أهلًا بيك! 👋 أنا المساعد الذكي. اسألني عن <b>التسجيل</b> أو <b>تسجيل الدخول</b> أو <b>الامتحان</b>.\nولو مشكلتك كبيرة هحوّلك لفريق الدعم في المنتدى.");
+  const ask = async (q) => {
+    if (!q.trim()) return; add("me", esc(q)); $("#bin").value = "";
+    const r = botAnswer(q.replace(/عايز أكلم الدعم/, "كلم الدعم"));
+    const { data: { session } } = await sb.auth.getSession();
+    const d = add("bt", esc(r.a));
+    if (r.e || r.big) {
+      const e = r.e || ESC.tech; botEsc.push(e); const i = botEsc.length - 1;
+      d.insertAdjacentHTML("beforeend", `<div class="esc">${session ? `<button onclick="botEscalate(${i})">💬 افتح محادثة مع الدعم ${e.cat === "scientific" ? "العلمي" : "الفني"}</button>` : `<a class="wa" href="${WA}" target="_blank" rel="noopener">📱 كلّم الدعم على واتساب</a>`}</div>` + (session ? "" : `<div style="margin-top:6px;font-size:13px;color:var(--mute)">سجّل دخول الأول لو عايز تستخدم المنتدى.</div>`));
+    }
+  };
+  fab.onclick = () => box.classList.toggle("open"); $("#botx").onclick = () => box.classList.remove("open");
+  $("#bsend").onclick = () => ask($("#bin").value); $("#bin").onkeydown = (e) => e.key === "Enter" && ask($("#bin").value);
+  $("#bc").onclick = (e) => { const b = e.target.closest("button"); if (b) ask(b.textContent); };
+}
+initBot();
 
 boot();
 </script>
