@@ -99,11 +99,23 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .bot .bi{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line);background:#fff}.bot .bi input{padding:9px 12px}.bot .bi button{padding:8px 14px}
 .bot .esc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.bot .esc a,.bot .esc button{border:0;border-radius:10px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;text-decoration:none}.bot .esc .wa{background:#16a34a}
 @media(max-width:500px){.bot{left:8px;right:8px;width:auto;max-width:none}}
+#banners{position:relative;z-index:30}
+.bn{display:flex;gap:12px;align-items:center;padding:11px 18px;font-weight:600;border-bottom:1px solid rgba(0,0,0,.08);flex-wrap:wrap}
+.bn.info{background:#e6f0ff;color:#1e3a8a}.bn.success{background:#e3f6ea;color:#14532d}.bn.warning{background:#fff4d6;color:#7a4b00}.bn.urgent{background:#fde8e8;color:#991b1b}
+.bn .tx{flex:1;min-width:200px}.bn a.go{background:rgba(0,0,0,.12);color:inherit;border-radius:9px;padding:3px 14px;text-decoration:none;font-weight:700}.bn button{background:transparent;border:0;font-size:18px;cursor:pointer;color:inherit}
+.toastb{position:fixed;top:84px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 22px;border-radius:12px;z-index:95;box-shadow:0 10px 30px rgba(0,0,0,.3);font-weight:700;max-width:92vw;text-align:center}
+.flag{border:0;background:#f3eee3;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:16px;opacity:.55;flex:none}.flag.on{opacity:1;background:#fde7a8;box-shadow:0 0 0 2px var(--gold)}
+.navgrid a.flagged{box-shadow:0 0 0 3px var(--gold)}
+.tips{margin:6px 28px 16px;background:#f4f8ff;border:1px solid #cfe0ff;border-radius:16px;padding:14px 18px}.tips b{color:#1e3a8a}.tips ul{margin:6px 0 0;padding-right:20px;color:#374151}
+.bot .bo{display:flex;flex-direction:column;gap:7px;padding:10px;border-top:1px solid var(--line);background:#fff;max-height:210px;overflow-y:auto}.bot .bo button{text-align:right;border:1px solid #99d5cf;background:#effaf8;color:#0f766e;border-radius:12px;padding:9px 13px;font:inherit;font-size:14.5px;cursor:pointer;font-weight:600}.bot .bo button:hover{background:#d9f3ef}.bot .bo button.back{background:#fff;border-color:var(--line);color:var(--mute)}
+.bot .note{font-size:12px;color:var(--mute);text-align:center;padding:5px;background:#fff;border-top:1px solid var(--line)}
+@media print{.topbar,.botfab,.bot,#banners,.rtabs,.credit,.btn,.dock,.timer{display:none!important}body{background:#fff}}
 </style>
 </head>
 <body>
+<div id="banners"></div>
 <div id="app"></div>
-<div class="credit">تطوير وإدارة <b>محمد رمضان الحرباوي</b> بالتعاون مع <b>أ/ محمد حمدي الرفاعي</b><br><span>📱 واتساب: 01500492203</span></div>
+<div class="credit">تطوير وإدارة <b>محمد رمضان الحرباوي</b><br><span>📱 واتساب: 01500492203</span></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const sb = supabase.createClient("https://ejutbpumrnvuoftvwais.supabase.co", "sb_publishable_whwX3xnNzZcNbs90ejhEGA_SiA-gPgZ");
@@ -125,8 +137,45 @@ function modal(title, body, buttons) {
   });
 }
 
+
+function toast(t) { const d = document.createElement("div"); d.className = "toastb"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 5000); }
+function closeBanner(id) { let a = []; try { a = JSON.parse(localStorage.getItem("bn_x") || "[]"); } catch (e) {} a.push(id); try { localStorage.setItem("bn_x", JSON.stringify(a)); } catch (e) {} loadBanners(); }
+async function loadBanners() {
+  try {
+    const { data } = await sb.from("banners").select("*").order("sort").order("created_at", { ascending: false });
+    let dis = []; try { dis = JSON.parse(localStorage.getItem("bn_x") || "[]"); } catch (e) {}
+    const okUrl = (u) => /^https?:\/\//i.test(u || "");
+    $("#banners").innerHTML = (data || []).filter((b) => !dis.includes(b.id)).map((b) => `<div class="bn ${["info", "success", "warning", "urgent"].includes(b.style) ? b.style : "info"}"><div class="tx"><b>${esc(b.title)}</b>${b.body ? " — " + esc(b.body) : ""}</div>${okUrl(b.link_url) ? `<a class="go" href="${esc(b.link_url)}" target="_blank" rel="noopener">${esc(b.link_text || "افتح")}</a>` : ""}<button onclick="closeBanner('${b.id}')" aria-label="إغلاق">✕</button></div>`).join("");
+  } catch (e) {}
+}
+setInterval(() => { if ($("#banners").style.display !== "none") loadBanners(); }, 120000);
+
+async function accountView() {
+  const { data: { user } } = await sb.auth.getUser();
+  const [{ data: p }, { data: cs }] = await Promise.all([sb.from("profiles").select("full_name,phone,center_id").eq("id", user.id).single(), sb.from("centers").select("id,name").order("name")]);
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div style="text-align:right"><h3 style="text-align:center">👤 حسابي</h3>
+    <label class="l">الاسم الكامل</label><input id="an" value="${esc(p?.full_name)}"><label class="l">رقم الموبايل</label><input id="ap" dir="ltr" value="${esc(p?.phone || "")}">
+    <label class="l">السنتر</label><select id="ac"><option value="">— بدون / أونلاين —</option>${(cs || []).map((c) => `<option value="${c.id}" ${p?.center_id === c.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select>
+    <label class="l">كلمة مرور جديدة <small>(اتركها فاضية لو مش عايز تغيّرها)</small></label><input id="aw" type="password" dir="ltr" placeholder="6 أحرف على الأقل">
+    <div class="err" id="ae"></div><div class="r"><button class="btn" id="as">حفظ</button><button class="btn alt" id="ax">إغلاق</button></div></div>`;
+  document.body.appendChild(m);
+  $("#ax").onclick = () => m.remove();
+  $("#as").onclick = async () => {
+    const name = $("#an").value.trim(), pw = $("#aw").value; $("#ae").textContent = "";
+    if (!name) return ($("#ae").textContent = "الاسم مطلوب");
+    if (pw && pw.length < 6) return ($("#ae").textContent = "كلمة المرور 6 أحرف على الأقل");
+    $("#as").disabled = true;
+    const { error } = await sb.from("profiles").update({ full_name: name, phone: digits($("#ap").value) || null, center_id: $("#ac").value || null }).eq("id", user.id);
+    if (error) { $("#ae").textContent = "تعذر الحفظ: " + error.message; $("#as").disabled = false; return; }
+    if (pw) { const r = await sb.auth.updateUser({ password: pw }); if (r.error) { $("#ae").textContent = "تم حفظ البيانات لكن تعذر تغيير كلمة المرور: " + r.error.message; $("#as").disabled = false; return; } }
+    m.remove(); toast("✓ تم حفظ بياناتك"); boot();
+  };
+}
+
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
+  loadBanners();
   if (!session) return authView("login");
   try { await sb.rpc("ensure_profile"); } catch (e) {}
   home(session.user);
@@ -173,11 +222,11 @@ async function authView(mode, msg = "") {
   };
 }
 
-const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
+const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm" onclick="accountView()">👤 حسابي</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
 async function home(user) {
-  clearInterval(timerId);
+  clearInterval(timerId); { const bn = $("#banners"); if (bn) bn.style.display = ""; }
   const [{ data: profile }, { data: settings }, { data: attempts }, { count: qc }, { count: unread }] = await Promise.all([
     sb.from("profiles").select("full_name,role").eq("id", user.id).single(),
     sb.from("exam_settings").select("*").eq("id", 1).single(),
@@ -197,6 +246,7 @@ async function home(user) {
   app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div class="hcard"><div class="head"><h2>${esc(settings.title)}</h2><div>أهلًا ${esc((profile?.full_name || "").split(" ")[0])} 👋</div></div>
   <div class="chips"><div class="chip"><b>${settings.duration_minutes}</b><span>دقيقة</span></div><div class="chip"><b>${qc || "—"}</b><span>سؤال</span></div><div class="chip"><b>2</b><span>قسمين: اختياري + مقالي</span></div></div>
   <ul class="rules"><li>الوقت بيبدأ أول ما تضغط "ابدأ" ومش بيقف لو قفلت الصفحة أو الإنترنت قطع.</li><li>كل إجابة بتتحفظ تلقائيًا، وتقدر ترجع تكمل من نفس المكان.</li><li>الاختياري بيتصحح تلقائيًا، والمقالي بيصححه المدرس يدويًا.</li><li>لما الوقت يخلص الامتحان بيتسلّم تلقائيًا.</li></ul>
+  <div class="tips"><b>💡 نصايح قبل ما تبدأ:</b><ul><li>اتأكد إن النت ثابت والشاحن متوصل.</li><li>ابدأ بالاختياري وسيب المقالي لآخر وقت، ووزّع وقتك (حوالي 90 دقيقة للاختياري).</li><li>استخدم علامة 🚩 لأي سؤال محتاج يتراجع، وراجعه قبل التسليم.</li><li>اكتب المقالي بنقاط واضحة مع ذكر الأدلة التاريخية.</li></ul></div>
   <div class="helpbox" onclick="supportView()"><i>💬</i><div><b>الدعم والمنتدى</b>${unread ? `<span class="dot">${unread} رد جديد</span>` : ""}<br><small style="color:#7a5b10">عندك سؤال في المادة أو مشكلة في الموقع؟ ابعت لفريق الدعم العلمي أو الفني وهيردوا عليك هنا.</small></div></div>
   <div class="cta">${can ? `<div class="err" id="er"></div><button class="btn" id="st" style="font-size:19px;padding:15px 44px">ابدأ الامتحان</button>` : `<p class="err" style="font-size:16px">الامتحان غير متاح لك حاليًا. تواصل مع المدرس لفتح محاولة.</p>`}</div></div></div>`;
   if (can) $("#st").onclick = async () => {
@@ -210,7 +260,7 @@ async function home(user) {
 }
 
 async function examView(attempt, profile, settings) {
-  submitted = false;
+  submitted = false; { const bn = $("#banners"); if (bn) bn.style.display = "none"; }
   const t0 = Date.now(); const { data: sn } = await sb.rpc("server_now");
   const offset = sn ? new Date(sn).getTime() - (t0 + (Date.now() - t0) / 2) : 0;
   const [{ data: questions }, { data: answers }] = await Promise.all([
@@ -218,6 +268,7 @@ async function examView(attempt, profile, settings) {
     sb.from("answers").select("question_id,choice,essay_text").eq("attempt_id", attempt.id),
   ]);
   const choices = {}, texts = {};
+  let flags = new Set(); try { flags = new Set(JSON.parse(localStorage.getItem("fl_" + attempt.id) || "[]")); } catch (e) {}
   (answers || []).forEach((x) => { if (x.choice !== null && x.choice !== undefined) choices[x.question_id] = x.choice; if (x.essay_text) texts[x.question_id] = x.essay_text; });
   const mcq = questions.filter((q) => q.kind === "mcq"), essay = questions.filter((q) => q.kind === "essay");
   const expires = new Date(attempt.expires_at).getTime(), total = Math.max(1, expires - new Date(attempt.started_at || attempt.created_at).getTime());
@@ -226,22 +277,23 @@ async function examView(attempt, profile, settings) {
     <div class="clock" id="clock">--:--:--</div><div id="stat" style="font-size:14px;min-width:110px;text-align:left"></div></div><div class="bar"><i id="bar" style="width:100%"></i></div></div>
   <div class="layout"><div>
   <div class="sec"><h2>القسم الأول: الاختيار من متعدد</h2><span>${mcq.length} سؤال</span></div>
-  ${mcq.map((q) => `<div class="q" id="q${q.id}"><div class="qh"><div class="qn">${q.position}</div><div class="t">${esc(q.text)}</div><span class="mk">${q.marks} د</span></div>
+  ${mcq.map((q) => `<div class="q" id="q${q.id}"><div class="qh"><div class="qn">${q.position}</div><div class="t">${esc(q.text)}</div><span class="mk">${q.marks} د</span><button class="flag${flags.has(q.id) ? " on" : ""}" data-f="${q.id}" title="علّم للمراجعة">🚩</button></div>
     ${q.options.map((o, i) => `<label class="opt${choices[q.id] === i ? " sel" : ""}" data-q="${q.id}" data-i="${i}"><input type="radio" name="r${q.id}"><span class="lt">${LET[i]}</span><span>${esc(o)}</span></label>`).join("")}</div>`).join("")}
   <div class="sec"><h2>القسم الثاني: الأسئلة المقالية</h2><span>${essay.length} سؤال • تصحيح يدوي</span></div>
-  ${essay.map((q) => `<div class="q" id="q${q.id}"><div class="qh"><div class="qn">${q.position}</div><div class="t">${esc(q.text)}</div><span class="mk">${q.marks} د</span></div>
+  ${essay.map((q) => `<div class="q" id="q${q.id}"><div class="qh"><div class="qn">${q.position}</div><div class="t">${esc(q.text)}</div><span class="mk">${q.marks} د</span><button class="flag${flags.has(q.id) ? " on" : ""}" data-f="${q.id}" title="علّم للمراجعة">🚩</button></div>
     <textarea data-e="${q.id}" placeholder="اكتب إجابتك بأسلوبك مع ذكر الأدلة التاريخية...">${esc(texts[q.id] || "")}</textarea><div class="cc" id="cc${q.id}"></div></div>`).join("")}
   <div class="dock"><div><b id="cnt"></b> سؤال مُجاب من ${questions.length}</div><button class="btn" id="fin">تسليم الامتحان</button></div></div>
   <aside class="side"><b>خريطة الأسئلة</b><div class="prog" style="margin-top:10px"><i id="pg" style="width:0"></i></div>
     <div class="navgrid">${questions.map((q, i) => `<a href="#q${q.id}" id="n${q.id}">${i + 1}</a>`).join("")}</div>
-    <small style="color:var(--mute)">الأخضر الغامق = تمت الإجابة</small></aside></div>`;
+    <div style="display:grid;gap:8px;margin-top:10px"><button class="btn alt sm" id="nxt">⏭ أول سؤال بدون إجابة</button><button class="btn alt sm" id="rvw">🚩 أسئلة المراجعة (<span id="fc">0</span>)</button><div style="display:flex;gap:6px"><button class="btn alt sm" id="fm" style="flex:1">A−</button><button class="btn alt sm" id="fp" style="flex:1">A+</button></div></div><small style="color:var(--mute);display:block;margin-top:8px">الأخضر = تمت الإجابة • إطار ذهبي = للمراجعة</small></aside></div>`;
 
   const stat = (t) => { const s = $("#stat"); if (s) s.textContent = t; };
   const isDone = (q) => (q.kind === "mcq" ? choices[q.id] !== undefined : (texts[q.id] || "").trim().length > 0);
   const refresh = () => {
     const n = questions.filter(isDone).length;
     $("#cnt").textContent = n; $("#pg").style.width = (n / questions.length) * 100 + "%";
-    questions.forEach((q) => ($("#n" + q.id).className = isDone(q) ? "done" : ""));
+    questions.forEach((q) => ($("#n" + q.id).className = (isDone(q) ? "done" : "") + (flags.has(q.id) ? " flagged" : "")));
+    $("#fc").textContent = flags.size;
   };
   async function save(qid, choice, text) {
     stat("جارٍ الحفظ...");
@@ -267,7 +319,7 @@ async function examView(attempt, profile, settings) {
       const ok = await modal("تسليم الامتحان؟", un ? `فيه <b style="color:var(--bad)">${un}</b> سؤال بدون إجابة. بعد التسليم مش هتقدر تعدّل.` : "كل الأسئلة متجاوب عليها. بعد التسليم مش هتقدر تعدّل.", [{ t: "تسليم نهائي", v: true }, { t: "رجوع للامتحان", v: false, alt: true }]);
       if (!ok) return;
     }
-    submitted = true; clearInterval(timerId); const b = $("#fin"); if (b) { b.disabled = true; b.textContent = "جارٍ التسليم..."; }
+    submitted = true; window.onbeforeunload = null; clearInterval(timerId); const b = $("#fin"); if (b) { b.disabled = true; b.textContent = "جارٍ التسليم..."; }
     Object.values(saveTimers).forEach(clearTimeout);
     for (const q of essay) if (texts[q.id]) await sb.rpc("save_answer", { p_attempt: attempt.id, p_question: q.id, p_choice: null, p_text: texts[q.id] });
     await sb.rpc("submit_attempt", { p_attempt: attempt.id });
@@ -278,8 +330,19 @@ async function examView(attempt, profile, settings) {
   const tick = () => {
     const ms = expires - (Date.now() + offset), s = Math.max(0, Math.floor(ms / 1000));
     $("#clock").textContent = fmt(s); $("#bar").style.width = Math.max(0, Math.min(100, (ms / total) * 100)) + "%"; $("#tm").classList.toggle("low", s < 600);
+    for (const [sec, msg] of [[1800, "⏰ باقي 30 دقيقة على نهاية الامتحان"], [600, "⏰ باقي 10 دقايق! ابدأ راجع إجاباتك"], [300, "🚨 باقي 5 دقايق فقط!"]]) if (s <= sec && s > 0 && !warned.has(sec)) { warned.add(sec); toast(msg); }
     if (s <= 0) { clearInterval(timerId); finish(true); }
   };
+  const warned = new Set(); for (const sec of [1800, 600, 300]) if (expires - (Date.now() + offset) <= sec * 1000) warned.add(sec);
+  document.querySelectorAll(".flag").forEach((b) => (b.onclick = () => { const id = Number(b.dataset.f); flags.has(id) ? flags.delete(id) : flags.add(id); b.classList.toggle("on", flags.has(id)); try { localStorage.setItem("fl_" + attempt.id, JSON.stringify([...flags])); } catch (e) {} refresh(); }));
+  const jump = (id) => { const el = $("#q" + id); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); };
+  $("#nxt").onclick = () => { const q = questions.find((x) => !isDone(x)); q ? jump(q.id) : toast("🎉 كل الأسئلة متجاوب عليها"); };
+  let rv = 0; $("#rvw").onclick = () => { const a = questions.filter((x) => flags.has(x.id)); if (!a.length) return toast("مفيش أسئلة معلّمة للمراجعة. استخدم علامة 🚩"); jump(a[rv++ % a.length].id); };
+  let fs = 17; const setFs = (d) => { fs = Math.max(14, Math.min(24, fs + d)); document.body.style.fontSize = fs + "px"; };
+  $("#fm").onclick = () => setFs(-1); $("#fp").onclick = () => setFs(1);
+  window.onbeforeunload = (e) => { if (!submitted) { e.preventDefault(); e.returnValue = ""; } };
+  window.addEventListener("offline", () => stat("🔴 لا يوجد اتصال - إجاباتك مش بتتحفظ"));
+  window.addEventListener("online", () => { stat("🟢 رجع الاتصال - جارٍ المزامنة"); questions.filter(isDone).forEach((q) => (q.kind === "mcq" ? save(q.id, choices[q.id], null) : save(q.id, null, texts[q.id]))); });
   tick(); timerId = setInterval(tick, 1000); refresh();
 }
 /* ===== الدعم والمنتدى ===== */
@@ -376,7 +439,7 @@ async function resultView(aid) {
     } else list.innerHTML = essay.map(essayCard).join("");
     document.querySelectorAll(".rtabs button").forEach((b) => b.classList.toggle("on", b.dataset.t === tab));
   };
-  app.innerHTML = topbar(profile, 0) + `<div class="wrap"><button class="btn alt sm" onclick="backHome()">← رجوع</button>
+  app.innerHTML = topbar(profile, 0) + `<div class="wrap"><button class="btn alt sm" onclick="backHome()">← رجوع</button> <button class="btn alt sm" onclick="window.print()">🖨️ طباعة / حفظ PDF</button>
   <div class="hcard" style="margin-top:14px"><div class="head"><h2>نتيجتي التفصيلية</h2><div>${esc(profile?.full_name)}</div></div>
     <div style="padding:20px 24px;text-align:center"><div class="score" style="--p:${pct}%"><div>${r.total}<small>من ${r.max} (${pct}%)</small></div></div></div>
     <div class="chips"><div class="chip"><b style="color:var(--ok)">${ok.length}</b><span>اختياري صح</span></div><div class="chip"><b style="color:var(--bad)">${bad.length}</b><span>اختياري خطأ</span></div><div class="chip"><b>${none.length}</b><span>بدون إجابة</span></div>
@@ -391,59 +454,64 @@ async function resultView(aid) {
 
 const backHome = () => boot();
 
-/* ================= المساعد الذكي (قواعد جاهزة - بدون ذكاء اصطناعي خارجي) ================= */
+/* ================= المساعد الذكي (قوائم جاهزة فقط - الطالب مش بيكتب رسائل) ================= */
 const WA = "https://wa.me/201500492203";
-const norm = (t) => String(t || "").replace(/[\u064B-\u0652\u0640]/g, "").replace(/[أإآ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/[؟?!.,،]/g, " ").toLowerCase();
-const ESC = { tech: { cat: "technical", kind: "problem" }, sci: { cat: "scientific", kind: "question" }, grade: { cat: "scientific", kind: "not_graded", subject: "عدم تصحيح" } };
-const KB = [
-  { k: ["السلام", "اهلا", "مرحبا", "هاي", "ازيك", "صباح", "مساء"], a: "أهلًا بيك! 👋 أنا المساعد الذكي. اسألني عن التسجيل أو الدخول أو الامتحان، وأنا هرشدك خطوة بخطوة." },
-  { k: ["حساب جديد", "انشاء حساب", "اعمل حساب", "اسجل", "تسجيل حساب", "سجل حساب", "مش مسجل", "اول مره", "التسجيل"], a: "لتسجيل حساب جديد:\n1) اضغط تبويب «حساب جديد».\n2) اكتب اسمك الكامل ورقم موبايلك (الإيميل اختياري).\n3) اختار السنتر بتاعك (أو «بدون / أونلاين»).\n4) اكتب كلمة مرور 6 أحرف أو أكثر واضغط «إنشاء الحساب»." },
-  { k: ["تسجيل دخول", "ادخل", "دخول", "login", "الدخول", "ازاي ادخل", "افتح حسابي"], a: "للدخول: اكتب رقم الموبايل اللي سجلت بيه (أو الإيميل) وكلمة المرور، واضغط «دخول».\nلو لسه معندكش حساب اضغط «حساب جديد» الأول." },
-  { k: ["نسيت", "كلمه المرور", "كلمه السر", "الباسورد", "password", "باسورد", "استرجاع", "رمز الدخول"], a: "للأسف مفيش استرجاع تلقائي لكلمة المرور حاليًا. ابعت رسالة للدعم الفني باسمك ورقم موبايلك وفريق الدعم هيساعدك.", e: { ...ESC.tech, subject: "نسيت كلمة المرور" } },
-  { k: ["مش عارف ادخل", "مش بيدخل", "لا استطيع الدخول", "مش راضي", "غير صحيحه", "بيقولي البيانات", "خطا في الدخول", "مشكله في الدخول", "مش قادر ادخل", "البيانات غير"], a: "جرّب الآتي:\n• تأكد إن رقم الموبايل أو الإيميل مكتوب صح ومن غير مسافات.\n• تأكد من كلمة المرور (حالة الأحرف ولغة الكيبورد).\n• ادخل من صفحة الطالب (مش لوحة المدرسين).\nلو لسه مش بيدخل كلّم الدعم الفني.", e: { ...ESC.tech, subject: "مشكلة في تسجيل الدخول" } },
-  { k: ["ابدا الامتحان", "ابدا", "فتح الامتحان", "مش ظاهر", "زر البدء", "مش قادر ابدا", "غير متاح", "مش متاح", "تعذر بدء", "خطا بدء", "ازاي ابدا", "بدايه الامتحان"], a: "لبدء الامتحان اضغط «ابدأ الامتحان» من الصفحة الرئيسية.\nلو ظهرت «غير متاح لك» يبقى الامتحان لسه مش مفتوح لك — المدرس لازم يفتحلك محاولة.\nلو ظهرت رسالة خطأ عند البدء، حدّث الصفحة وجرّب تاني، ولو استمرت ابعت للدعم الفني.", e: { ...ESC.tech, subject: "مشكلة في بدء الامتحان" } },
-  { k: ["الوقت", "المده", "220", "العداد", "ساعه", "كام دقيقه", "وقت الامتحان", "مده الامتحان"], a: "مدة الامتحان 220 دقيقة من لحظة ضغطك على «ابدأ الامتحان». العداد محسوب من السيرفر فمش بيقف لو قفلت الصفحة أو النت قطع، ولما الوقت يخلص الامتحان بيتسلّم تلقائيًا." },
-  { k: ["النت", "الانترنت", "قطع", "فصل", "وقع", "الشبكه"], a: "لو النت قطع وقت الامتحان: العداد مكمل من السيرفر. ارجع افتح الموقع وسجّل دخول وهتكمل من نفس المكان وإجاباتك المحفوظة موجودة." },
-  { k: ["بيتحفظ", "ضاعت", "اختفت", "فقدت", "مش بيحفظ", "فشل الحفظ", "الحفظ", "اجابتي راحت", "مسحت"], a: "كل إجابة بتتحفظ تلقائيًا. اتأكد إن مكتوب «✓ تم الحفظ» فوق. لو ظهر «فشل الحفظ» تأكد من الإنترنت وماتقفلش الصفحة.\nلو إجابات اختفت فعلًا كلّم الدعم الفني فورًا.", e: { ...ESC.tech, subject: "إجاباتي اختفت أو لا تُحفظ" }, big: true },
-  { k: ["تسليم", "اسلم", "سلم", "انهي الامتحان", "انهاء", "خلصت", "اخلص"], a: "لما تخلص اضغط «تسليم الامتحان» وأكّد. بعد التسليم مش هتقدر تعدّل. راجع خريطة الأسئلة الأول عشان ماتسيبش سؤال من غير إجابة." },
-  { k: ["الدرجه", "النتيجه", "درجتي", "امتى تظهر", "نتيجتي", "الاخطاء", "اخطائي"], a: "درجتك بتظهر بعد ما المدرس يصحح الأسئلة المقالية ويعتمد الدرجة. وقتها هتلاقي زر «شوف أخطائي وإجاباتي والإحصائيات» في صفحتك." },
-  { k: ["مصححش", "متصححش", "لسه ما اتصححش", "تاخر التصحيح", "عدم تصحيح", "التصحيح", "مقالي", "المقالي"], a: "الأسئلة المقالية بيصححها المدرس يدويًا فبتاخد وقت. لو شايف إن التصحيح اتأخر أو سؤال ما اتصححش، ابعت للدعم العلمي بنوع «عدم تصحيح».", e: ESC.grade },
-  { k: ["المنهج", "الدرس", "اجابه نموذجيه", "شرح", "المادة", "معلومه", "الحمله الفرنسيه", "ثوره", "مصطفي كامل", "سعد زغلول", "تاريخ"], a: "الأسئلة عن المادة والمحتوى بيجاوب عليها فريق الدعم العلمي. افتح محادثة معاهم واكتب سؤالك بالتفصيل.", e: ESC.sci },
-  { k: ["المنتدي", "الدعم", "تواصل", "كلم", "اكلم", "مدرس", "رساله", "شكوي", "اقتراح", "رايي", "رأي"], a: "تقدر تبعت لفريق الدعم من زر «💬 الدعم والمنتدى»: اختار علمي أو فني، ونوع الاستفسار (مشكلة، رأي، اقتراح، عدم تصحيح...). هيردوا عليك هناك وتقدر ترد عليهم.", e: ESC.tech },
+const ESC = { tech: { cat: "technical", kind: "problem" }, sci: { cat: "scientific", kind: "question" }, grade: { cat: "scientific", kind: "not_graded", subject: "عدم تصحيح" }, idea: { cat: "technical", kind: "suggestion", subject: "اقتراح" } };
+const BOTMENU = [
+  { t: "📝 التسجيل والدخول", items: [
+    { q: "كيف أسجل حساب جديد؟", a: "لتسجيل حساب جديد:\n1) اضغط تبويب «حساب جديد».\n2) اكتب اسمك الكامل ورقم موبايلك (الإيميل اختياري).\n3) اختار السنتر بتاعك (أو «بدون / أونلاين»).\n4) اكتب كلمة مرور 6 أحرف أو أكثر واضغط «إنشاء الحساب»." },
+    { q: "كيف أسجل دخول؟", a: "اكتب رقم الموبايل اللي سجلت بيه (أو الإيميل) وكلمة المرور، واضغط «دخول».\nلو لسه معندكش حساب اضغط «حساب جديد» الأول." },
+    { q: "نسيت كلمة المرور", a: "للأسف مفيش استرجاع تلقائي لكلمة المرور حاليًا. ابعت رسالة للدعم الفني باسمك ورقم موبايلك وفريق الدعم هيساعدك.", e: { ...ESC.tech, subject: "نسيت كلمة المرور" } },
+    { q: "مش قادر أدخل", a: "جرّب الآتي:\n• تأكد إن رقم الموبايل أو الإيميل مكتوب صح ومن غير مسافات.\n• تأكد من كلمة المرور (حالة الأحرف ولغة الكيبورد).\n• ادخل من صفحة الطالب (مش لوحة المدرسين).\nلو لسه مش بيدخل كلّم الدعم الفني.", e: { ...ESC.tech, subject: "مشكلة في تسجيل الدخول" } },
+    { q: "إزاي أعدّل بياناتي أو أغيّر كلمة المرور؟", a: "بعد تسجيل الدخول اضغط زر «👤 حسابي» فوق: تقدر تعدّل اسمك ورقم موبايلك والسنتر وتغيّر كلمة المرور." } ] },
+  { t: "📋 الامتحان", items: [
+    { q: "كيف أبدأ الامتحان؟", a: "اضغط «ابدأ الامتحان» من الصفحة الرئيسية وأكّد.\nلو ظهرت «غير متاح لك» يبقى الامتحان لسه مش مفتوح لك — المدرس لازم يفتحلك محاولة." },
+    { q: "الامتحان غير متاح أو بيطلع خطأ عند البدء", a: "حدّث الصفحة وجرّب تاني. لو الرسالة لسه موجودة يبقى محتاج المدرس يفتحلك محاولة أو في مشكلة في حسابك — ابعت للدعم الفني.", e: { ...ESC.tech, subject: "مشكلة في بدء الامتحان" } },
+    { q: "مدة الامتحان والعداد", a: "مدة الامتحان 220 دقيقة من لحظة ضغطك على «ابدأ». العداد محسوب من السيرفر فمش بيقف لو قفلت الصفحة أو النت قطع، ولما الوقت يخلص الامتحان بيتسلّم تلقائيًا. هتوصلك تنبيهات عند آخر 30 و10 و5 دقايق." },
+    { q: "إجاباتي مش بتتحفظ", a: "كل إجابة بتتحفظ تلقائيًا. اتأكد إن مكتوب «✓ تم الحفظ» فوق. لو ظهر «فشل الحفظ» تأكد من الإنترنت وماتقفلش الصفحة.\nلو إجابات اختفت فعلًا كلّم الدعم الفني فورًا.", e: { ...ESC.tech, subject: "إجاباتي اختفت أو لا تُحفظ" } },
+    { q: "النت قطع أثناء الامتحان", a: "العداد مكمل من السيرفر. أول ما النت يرجع الموقع بيزامن إجاباتك تلقائيًا؛ ولو الصفحة اتقفلت ارجع سجّل دخول وكمّل من نفس المكان." },
+    { q: "ما هي علامة 🚩 المراجعة؟", a: "علامة 🚩 على أي سؤال بتخليه يظهر بإطار ذهبي في خريطة الأسئلة، وزر «أسئلة المراجعة» بينقلك بينهم. وزر «أول سؤال بدون إجابة» بيوصّلك لأي سؤال نسيته. وتقدر تكبّر أو تصغّر الخط بزر A+ / A−." },
+    { q: "كيف أسلّم الامتحان؟", a: "لما تخلص اضغط «تسليم الامتحان» وأكّد. بعد التسليم مش هتقدر تعدّل. راجع خريطة الأسئلة الأول عشان ماتسيبش سؤال من غير إجابة." } ] },
+  { t: "📊 الدرجات والتصحيح", items: [
+    { q: "متى تظهر درجتي؟", a: "درجتك بتظهر بعد ما المدرس يصحح الأسئلة المقالية ويعتمد الدرجة." },
+    { q: "إزاي أشوف أخطائي؟", a: "بعد اعتماد الدرجة هيظهر لك زر «📊 شوف أخطائي وإجاباتي والإحصائيات»: فيه الأسئلة اللي غلطت فيها بالإجابة الصحيحة، وإجاباتك المقالية وتعليق المدرس، ومستواك في كل درس." },
+    { q: "المقالي لسه ما اتصححش", a: "الأسئلة المقالية بيصححها المدرس يدويًا فبتاخد وقت. لو شايف إن التصحيح اتأخر أو سؤال ما اتصححش، ابعت للدعم العلمي بنوع «عدم تصحيح».", e: ESC.grade } ] },
+  { t: "💬 الدعم والمنتدى", items: [
+    { q: "إزاي أكلم الدعم؟", a: "اضغط «💬 الدعم والمنتدى» فوق، اختار علمي أو فني، ونوع الاستفسار (مشكلة، رأي، اقتراح، عدم تصحيح...)، واكتب رسالتك. هيردوا عليك هناك وتقدر ترد عليهم." },
+    { q: "إيه الفرق بين الدعم العلمي والفني؟", a: "🎓 الدعم العلمي: أسئلة عن المادة والمحتوى والتصحيح.\n🛠️ الدعم الفني: مشاكل الدخول والموقع والامتحان." },
+    { q: "عندي سؤال في المادة", a: "الأسئلة عن المادة والمحتوى بيجاوب عليها فريق الدعم العلمي. افتح محادثة معاهم واكتب سؤالك بالتفصيل.", e: ESC.sci } ] },
+  { t: "🚨 مشكلة مش موجودة هنا", items: [
+    { q: "مشكلة تقنية أو في الموقع", a: "ابعت تفاصيل المشكلة للدعم الفني.", e: ESC.tech },
+    { q: "اقتراح أو رأي", a: "يسعدنا نسمع رأيك! ابعته لفريق الدعم.", e: ESC.idea },
+    { q: "عدم تصحيح أو اعتراض على درجة", a: "ابعت للدعم العلمي بنوع «عدم تصحيح» ووضّح السؤال.", e: ESC.grade } ] },
 ];
-const BIG = ["مشكله كبيره", "عاجل", "ضاع", "اختفي", "مش شغال", "ايرور", "error", "خطا", "المشكله", "مستعجل", "ضروري"];
-const CHIPS = ["كيف أسجل حساب؟", "كيف أدخل؟", "نسيت كلمة المرور", "كيف أبدأ الامتحان؟", "الوقت والتسليم", "إجاباتي مش بتتحفظ", "متى تظهر درجتي؟", "عايز أكلم الدعم"];
-function botAnswer(text) {
-  const t = norm(text); let best = null, sc = 0;
-  for (const it of KB) { let n = 0; for (const k of it.k) if (t.includes(norm(k))) n += k.length > 4 ? 2 : 1; if (n > sc) { sc = n; best = it; } }
-  const big = BIG.some((w) => t.includes(norm(w)));
-  if (!best) return { a: "مش متأكد إني فهمت سؤالك 🤔\nجرّب تختار من الأسئلة الجاهزة تحت، أو أحوّلك لفريق الدعم يساعدك بنفسه.", e: ESC.tech, big: true };
-  return { a: best.a, e: best.e, big: big || best.big };
-}
-async function botEscalate(i) { const e = botEsc[i]; $("#bot").classList.remove("open"); const { data: { session } } = await sb.auth.getSession(); if (session) supportView(null, e); else window.open(WA, "_blank"); }
 let botEsc = [];
+async function botEscalate(i) { const e = botEsc[i]; $("#bot").classList.remove("open"); const { data: { session } } = await sb.auth.getSession(); if (session) supportView(null, e); else window.open(WA, "_blank"); }
 function initBot() {
   if ($("#botfab")) return;
   const fab = document.createElement("button"); fab.id = "botfab"; fab.className = "botfab"; fab.textContent = "🤖 مساعد ذكي";
   const box = document.createElement("div"); box.id = "bot"; box.className = "bot";
-  box.innerHTML = `<div class="bh"><span>🤖 المساعد الذكي</span><button id="botx" aria-label="إغلاق">✕</button></div><div class="bm" id="bm"></div>
-  <div class="chips" id="bc">${CHIPS.map((c) => `<button>${c}</button>`).join("")}</div><div class="bi"><input id="bin" placeholder="اكتب سؤالك هنا..."><button class="btn sm" id="bsend">إرسال</button></div>`;
+  box.innerHTML = `<div class="bh"><span>🤖 المساعد الذكي</span><button id="botx" aria-label="إغلاق">✕</button></div><div class="bm" id="bm"></div><div class="bo" id="bo"></div><div class="note">اختار من القائمة 👆 — مفيش كتابة رسائل هنا</div>`;
   document.body.append(fab, box);
-  const add = (cls, html) => { const d = document.createElement("div"); d.className = "b " + cls; d.innerHTML = html; $("#bm").appendChild(d); $("#bm").scrollTop = $("#bm").scrollHeight; return d; };
-  add("bt", "أهلًا بيك! 👋 أنا المساعد الذكي. اسألني عن <b>التسجيل</b> أو <b>تسجيل الدخول</b> أو <b>الامتحان</b>.\nولو مشكلتك كبيرة هحوّلك لفريق الدعم في المنتدى.");
-  const ask = async (q) => {
-    if (!q.trim()) return; add("me", esc(q)); $("#bin").value = "";
-    const r = botAnswer(q.replace(/عايز أكلم الدعم/, "كلم الدعم"));
-    const { data: { session } } = await sb.auth.getSession();
-    const d = add("bt", esc(r.a));
-    if (r.e || r.big) {
-      const e = r.e || ESC.tech; botEsc.push(e); const i = botEsc.length - 1;
-      d.insertAdjacentHTML("beforeend", `<div class="esc">${session ? `<button onclick="botEscalate(${i})">💬 افتح محادثة مع الدعم ${e.cat === "scientific" ? "العلمي" : "الفني"}</button>` : `<a class="wa" href="${WA}" target="_blank" rel="noopener">📱 كلّم الدعم على واتساب</a>`}</div>` + (session ? "" : `<div style="margin-top:6px;font-size:13px;color:var(--mute)">سجّل دخول الأول لو عايز تستخدم المنتدى.</div>`));
+  const say = (cls, html) => { const d = document.createElement("div"); d.className = "b " + cls; d.innerHTML = html; $("#bm").appendChild(d); $("#bm").scrollTop = $("#bm").scrollHeight; return d; };
+  const mainMenu = () => { $("#bo").innerHTML = BOTMENU.map((c, i) => `<button data-c="${i}">${c.t}</button>`).join(""); };
+  const subMenu = (ci) => { $("#bo").innerHTML = BOTMENU[ci].items.map((it, j) => `<button data-c="${ci}" data-i="${j}">${it.q}</button>`).join("") + `<button class="back" data-back="1">⬅ القائمة الرئيسية</button>`; };
+  say("bt", "أهلًا بيك! 👋 أنا المساعد الذكي.\nاختار الموضوع اللي محتاج مساعدة فيه من القائمة، ولو مشكلتك كبيرة هحوّلك لفريق الدعم.");
+  mainMenu();
+  $("#bo").onclick = async (ev) => {
+    const b = ev.target.closest("button"); if (!b) return;
+    if (b.dataset.back) { say("me", "⬅ القائمة الرئيسية"); mainMenu(); return; }
+    const ci = Number(b.dataset.c);
+    if (b.dataset.i === undefined) { say("me", esc(BOTMENU[ci].t)); say("bt", "اختار سؤالك:"); subMenu(ci); return; }
+    const it = BOTMENU[ci].items[Number(b.dataset.i)];
+    say("me", esc(it.q)); const d = say("bt", esc(it.a));
+    if (it.e) {
+      const { data: { session } } = await sb.auth.getSession(); botEsc.push(it.e); const i = botEsc.length - 1;
+      d.insertAdjacentHTML("beforeend", `<div class="esc">${session ? `<button onclick="botEscalate(${i})">💬 افتح محادثة مع الدعم ${it.e.cat === "scientific" ? "العلمي" : "الفني"}</button>` : `<a class="wa" href="${WA}" target="_blank" rel="noopener">📱 كلّم الدعم على واتساب</a>`}</div>` + (session ? "" : `<div style="margin-top:6px;font-size:13px;color:var(--mute)">سجّل دخول الأول لو عايز تستخدم المنتدى.</div>`));
     }
+    subMenu(ci);
   };
   fab.onclick = () => box.classList.toggle("open"); $("#botx").onclick = () => box.classList.remove("open");
-  $("#bsend").onclick = () => ask($("#bin").value); $("#bin").onkeydown = (e) => e.key === "Enter" && ask($("#bin").value);
-  $("#bc").onclick = (e) => { const b = e.target.closest("button"); if (b) ask(b.textContent); };
 }
 initBot();
 
