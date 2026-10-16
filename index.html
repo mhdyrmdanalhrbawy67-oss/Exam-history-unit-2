@@ -99,10 +99,6 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .bot .bi{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line);background:#fff}.bot .bi input{padding:9px 12px}.bot .bi button{padding:8px 14px}
 .bot .esc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.bot .esc a,.bot .esc button{border:0;border-radius:10px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;text-decoration:none}.bot .esc .wa{background:#16a34a}
 @media(max-width:500px){.bot{left:8px;right:8px;width:auto;max-width:none}}
-#banners{position:relative;z-index:30}
-.bn{display:flex;gap:12px;align-items:center;padding:11px 18px;font-weight:600;border-bottom:1px solid rgba(0,0,0,.08);flex-wrap:wrap}
-.bn.info{background:#e6f0ff;color:#1e3a8a}.bn.success{background:#e3f6ea;color:#14532d}.bn.warning{background:#fff4d6;color:#7a4b00}.bn.urgent{background:#fde8e8;color:#991b1b}
-.bn .tx{flex:1;min-width:200px}.bn a.go{background:rgba(0,0,0,.12);color:inherit;border-radius:9px;padding:3px 14px;text-decoration:none;font-weight:700}.bn button{background:transparent;border:0;font-size:18px;cursor:pointer;color:inherit}
 .toastb{position:fixed;top:84px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 22px;border-radius:12px;z-index:95;box-shadow:0 10px 30px rgba(0,0,0,.3);font-weight:700;max-width:92vw;text-align:center}
 .flag{border:0;background:#f3eee3;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:16px;opacity:.55;flex:none}.flag.on{opacity:1;background:#fde7a8;box-shadow:0 0 0 2px var(--gold)}
 .navgrid a.flagged{box-shadow:0 0 0 3px var(--gold)}
@@ -110,10 +106,30 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .bot .bo{display:flex;flex-direction:column;gap:7px;padding:10px;border-top:1px solid var(--line);background:#fff;max-height:210px;overflow-y:auto}.bot .bo button{text-align:right;border:1px solid #99d5cf;background:#effaf8;color:#0f766e;border-radius:12px;padding:9px 13px;font:inherit;font-size:14.5px;cursor:pointer;font-weight:600}.bot .bo button:hover{background:#d9f3ef}.bot .bo button.back{background:#fff;border-color:var(--line);color:var(--mute)}
 .bot .note{font-size:12px;color:var(--mute);text-align:center;padding:5px;background:#fff;border-top:1px solid var(--line)}
 @media print{.topbar,.botfab,.bot,#banners,.rtabs,.credit,.btn,.dock,.timer{display:none!important}body{background:#fff}}
+.bnr{position:relative;border-radius:24px;overflow:hidden;margin-bottom:20px;box-shadow:0 18px 40px rgba(0,0,0,.2)}
+.bnr .sl{display:none;align-items:center;gap:22px;padding:30px 34px 40px;color:#fff;position:relative;overflow:hidden}
+.bnr .sl.on{display:flex;animation:bnin .55s ease}@keyframes bnin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bnr .sl:before{content:"";position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.10);top:-120px;left:-80px}
+.bnr .sl:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08);bottom:-70px;right:30%}
+.bnr .sl.info{background:linear-gradient(135deg,#1e3a8a,#2563eb 60%,#60a5fa)}.bnr .sl.success{background:linear-gradient(135deg,#065f46,#10b981 70%,#6ee7b7)}
+.bnr .sl.warning{background:linear-gradient(135deg,#92400e,#f59e0b 70%,#fcd34d)}.bnr .sl.urgent{background:linear-gradient(135deg,#7f1d1d,#dc2626 65%,#f87171);animation:bnin .55s ease}
+.bnr .ic{flex:none;width:84px;height:84px;border-radius:24px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);display:grid;place-items:center;font-size:44px;backdrop-filter:blur(4px);z-index:1}
+.bnr .tx{flex:1;z-index:1;min-width:0}.bnr .lb{display:inline-block;background:rgba(255,255,255,.22);padding:1px 14px;border-radius:99px;font-size:13px;font-weight:800;margin-bottom:6px}
+.bnr h3{margin:0 0 4px;font-size:27px;line-height:1.4;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.2)}.bnr p{margin:0 0 10px;font-size:17px;opacity:.95;line-height:1.7}
+.bnr a.go{display:inline-block;background:#fff;color:#1c2233;text-decoration:none;font-weight:800;padding:9px 22px;border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:.15s}.bnr a.go:hover{transform:translateY(-2px)}
+.bnr .x{position:absolute;top:10px;left:12px;z-index:2;background:rgba(0,0,0,.22);border:0;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px}
+.bnr .dots{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:7px;z-index:2}.bnr .dots span{width:9px;height:9px;border-radius:99px;background:rgba(255,255,255,.45);cursor:pointer;transition:.2s}.bnr .dots span.on{width:28px;background:#fff}
+@media(max-width:640px){.bnr .sl{padding:22px 18px 38px;gap:14px}.bnr .ic{width:58px;height:58px;font-size:30px;border-radius:16px}.bnr h3{font-size:20px}.bnr p{font-size:15px}}
+.bell{position:relative}.nbd{position:absolute;top:-7px;left:-7px;background:#dc2626;color:#fff;border-radius:99px;min-width:19px;height:19px;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 5px;box-shadow:0 0 0 2px #fff}
+.bell.ring{animation:ring 1.2s ease 2}@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(6deg)}}
+.np{position:fixed;top:64px;left:14px;z-index:85;width:380px;max-width:calc(100vw - 28px);max-height:72vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);border:1px solid var(--line)}
+.np .nh{position:sticky;top:0;background:linear-gradient(135deg,#4a0f1b,var(--brand2));color:#fff;padding:13px 16px;font-weight:800;display:flex;justify-content:space-between;align-items:center}.np .nh button{background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer}
+.np .ni{display:flex;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line)}.np .ni.new{background:#fff8e6}.np .ni i{font-style:normal;flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px}
+.np .ni.info i{background:#e6f0ff}.np .ni.success i{background:#dff5e7}.np .ni.warning i{background:#fff1da}.np .ni.urgent i{background:#fde8e8}
+.np .ni b{display:block}.np .ni small{color:var(--mute)}.np .ni a{font-size:13px;font-weight:700}.np .em{padding:30px;text-align:center;color:var(--mute)}
 </style>
 </head>
 <body>
-<div id="banners"></div>
 <div id="app"></div>
 <div class="credit">تطوير وإدارة <b>محمد رمضان الحرباوي</b><br><span>📱 واتساب: 01500492203</span></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -139,16 +155,47 @@ function modal(title, body, buttons) {
 
 
 function toast(t) { const d = document.createElement("div"); d.className = "toastb"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 5000); }
-function closeBanner(id) { let a = []; try { a = JSON.parse(localStorage.getItem("bn_x") || "[]"); } catch (e) {} a.push(id); try { localStorage.setItem("bn_x", JSON.stringify(a)); } catch (e) {} loadBanners(); }
-async function loadBanners() {
+let BNDATA = [], NDATA = [], bnIdx = 0, bnTimer = null, nLast = null;
+const dismissed = () => { try { return JSON.parse(localStorage.getItem("bn_x") || "[]"); } catch (e) { return []; } };
+const okUrl = (u) => /^https?:\/\//i.test(u || "");
+const BST = { info: ["ℹ️", "إعلان"], success: ["🎉", "خبر سعيد"], warning: ["⚠️", "تنبيه"], urgent: ["🚨", "عاجل"] };
+function bannerHTML() {
+  const list = BNDATA.filter((b) => !dismissed().includes(b.id)); if (!list.length) return "";
+  if (bnIdx >= list.length) bnIdx = 0;
+  return `<div class="bnr">${list.map((b, i) => { const st = BST[b.style] ? b.style : "info"; return `<div class="sl ${st}${i === bnIdx ? " on" : ""}"><div class="ic">${esc(b.icon || BST[st][0])}</div><div class="tx"><span class="lb">${BST[st][1]}</span><h3>${esc(b.title)}</h3>${b.body ? `<p>${esc(b.body)}</p>` : ""}${okUrl(b.link_url) ? `<a class="go" href="${esc(b.link_url)}" target="_blank" rel="noopener">${esc(b.link_text || "اعرف أكتر")} ←</a>` : ""}</div><button class="x" onclick="closeBanner('${b.id}')" aria-label="إغلاق">✕</button></div>`; }).join("")}${list.length > 1 ? `<div class="dots">${list.map((_, i) => `<span class="${i === bnIdx ? "on" : ""}" onclick="gotoBanner(${i})"></span>`).join("")}</div>` : ""}</div>`;
+}
+function renderBanner() {
+  clearInterval(bnTimer); const el = $("#banners"); if (!el) return;
+  el.innerHTML = bannerHTML(); const n = BNDATA.filter((b) => !dismissed().includes(b.id)).length;
+  if (n > 1) bnTimer = setInterval(() => { bnIdx = (bnIdx + 1) % n; renderBanner(); }, 7000);
+}
+function gotoBanner(i) { bnIdx = i; renderBanner(); }
+function closeBanner(id) { const a = dismissed(); a.push(id); try { localStorage.setItem("bn_x", JSON.stringify(a)); } catch (e) {} renderBanner(); }
+async function loadBanners() { try { const { data } = await sb.from("banners").select("*").order("sort").order("created_at", { ascending: false }); BNDATA = data || []; renderBanner(); } catch (e) {} }
+setInterval(() => { if ($("#banners")) loadBanners(); }, 120000);
+
+/* ===== الإشعارات 🔔 ===== */
+const seenTs = () => Number(localStorage.getItem("nf_seen") || 0);
+const nUnread = () => NDATA.filter((n) => new Date(n.created_at).getTime() > seenTs()).length;
+function refreshBell() { const b = $("#nbd"); if (b) { const n = nUnread(); b.textContent = n; b.style.display = n ? "" : "none"; } }
+async function loadNotifs() {
   try {
-    const { data } = await sb.from("banners").select("*").order("sort").order("created_at", { ascending: false });
-    let dis = []; try { dis = JSON.parse(localStorage.getItem("bn_x") || "[]"); } catch (e) {}
-    const okUrl = (u) => /^https?:\/\//i.test(u || "");
-    $("#banners").innerHTML = (data || []).filter((b) => !dis.includes(b.id)).map((b) => `<div class="bn ${["info", "success", "warning", "urgent"].includes(b.style) ? b.style : "info"}"><div class="tx"><b>${esc(b.title)}</b>${b.body ? " — " + esc(b.body) : ""}</div>${okUrl(b.link_url) ? `<a class="go" href="${esc(b.link_url)}" target="_blank" rel="noopener">${esc(b.link_text || "افتح")}</a>` : ""}<button onclick="closeBanner('${b.id}')" aria-label="إغلاق">✕</button></div>`).join("");
+    const { data, error } = await sb.from("notifications").select("*").order("created_at", { ascending: false }).limit(30); if (error) return;
+    const prev = nLast; NDATA = data || []; nLast = NDATA.length ? new Date(NDATA[0].created_at).getTime() : 0; refreshBell();
+    if (prev !== null && nLast > prev) { const nw = NDATA.find((x) => new Date(x.created_at).getTime() > prev); if (nw) { toast("🔔 " + nw.title); const bl = document.querySelector(".bell"); if (bl) { bl.classList.remove("ring"); void bl.offsetWidth; bl.classList.add("ring"); } } }
   } catch (e) {}
 }
-setInterval(() => { if ($("#banners").style.display !== "none") loadBanners(); }, 120000);
+setInterval(() => { if (document.querySelector(".bell")) loadNotifs(); }, 60000);
+function agoTxt(d) { const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000); return m < 1 ? "الآن" : m < 60 ? `منذ ${m} دقيقة` : m < 1440 ? `منذ ${Math.floor(m / 60)} ساعة` : `منذ ${Math.floor(m / 1440)} يوم`; }
+async function toggleNotifs() {
+  const old = $("#np"); if (old) { old.remove(); return; }
+  await loadNotifs(); const seen = seenTs();
+  const p = document.createElement("div"); p.id = "np"; p.className = "np";
+  p.innerHTML = `<div class="nh"><span>🔔 الإشعارات</span><button onclick="document.getElementById('np').remove()" aria-label="إغلاق">✕</button></div>` + (NDATA.length ? NDATA.map((n) => { const st = BST[n.kind] ? n.kind : "info"; return `<div class="ni ${st}${new Date(n.created_at).getTime() > seen ? " new" : ""}"><i>${BST[st][0]}</i><div><b>${esc(n.title)}</b>${n.body ? `<div>${esc(n.body)}</div>` : ""}${okUrl(n.link_url) ? `<a href="${esc(n.link_url)}" target="_blank" rel="noopener">${esc(n.link_text || "فتح")} ←</a><br>` : ""}<small>${agoTxt(n.created_at)}</small></div></div>`; }).join("") : `<div class="em">🔕 مفيش إشعارات دلوقتي</div>`);
+  document.body.appendChild(p);
+  try { localStorage.setItem("nf_seen", String(NDATA.length ? new Date(NDATA[0].created_at).getTime() : Date.now())); } catch (e) {} refreshBell();
+  setTimeout(() => document.addEventListener("click", function h(ev) { const q = $("#np"); if (!q) return document.removeEventListener("click", h); if (!q.contains(ev.target) && !ev.target.closest(".bell")) { q.remove(); document.removeEventListener("click", h); } }), 0);
+}
 
 async function accountView() {
   const { data: { user } } = await sb.auth.getUser();
@@ -175,9 +222,9 @@ async function accountView() {
 
 async function boot() {
   const { data: { session } } = await sb.auth.getSession();
-  loadBanners();
   if (!session) return authView("login");
   try { await sb.rpc("ensure_profile"); } catch (e) {}
+  loadBanners(); loadNotifs();
   home(session.user);
 }
 
@@ -222,7 +269,7 @@ async function authView(mode, msg = "") {
   };
 }
 
-const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm" onclick="accountView()">👤 حسابي</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
+const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm bell" onclick="toggleNotifs()" aria-label="الإشعارات">🔔<span class="nbd" id="nbd" style="display:${nUnread() ? "" : "none"}">${nUnread()}</span></button> <button class="btn alt sm" onclick="accountView()">👤 حسابي</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
 async function home(user) {
@@ -238,17 +285,19 @@ async function home(user) {
   if (a && a.status === "in_progress") return examView(a, profile, settings);
   if (a && a.status === "submitted") {
     const total = Number(a.total_override ?? (Number(a.mcq_score) + Number(a.essay_score) + Number(a.adjustment)));
-    app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div class="hcard"><div class="head"><h2>تم تسليم الامتحان ✅</h2><div>${esc(profile?.full_name)}</div></div>
+    app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div id="banners"></div><div class="hcard"><div class="head"><h2>تم تسليم الامتحان ✅</h2><div>${esc(profile?.full_name)}</div></div>
     <div style="padding:26px;text-align:center">${a.graded ? `<div class="score" style="--p:100%"><div>${total}<small>درجتك النهائية</small></div></div><button class="btn" onclick="resultView('${a.id}')" style="margin-top:6px">📊 شوف أخطائي وإجاباتي والإحصائيات</button>` : `<p style="font-size:18px">إجاباتك اتسلّمت بنجاح 👏<br>الأسئلة المقالية بتتصحح يدويًا، وهتظهر درجتك هنا بعد اعتمادها من المدرس.</p>`}</div></div></div>`;
+    renderBanner(); refreshBell();
     return;
   }
   const can = (a && a.status === "not_started") || (!a && settings.is_open && settings.allow_self_start);
-  app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div class="hcard"><div class="head"><h2>${esc(settings.title)}</h2><div>أهلًا ${esc((profile?.full_name || "").split(" ")[0])} 👋</div></div>
+  app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div id="banners"></div><div class="hcard"><div class="head"><h2>${esc(settings.title)}</h2><div>أهلًا ${esc((profile?.full_name || "").split(" ")[0])} 👋</div></div>
   <div class="chips"><div class="chip"><b>${settings.duration_minutes}</b><span>دقيقة</span></div><div class="chip"><b>${qc || "—"}</b><span>سؤال</span></div><div class="chip"><b>2</b><span>قسمين: اختياري + مقالي</span></div></div>
   <ul class="rules"><li>الوقت بيبدأ أول ما تضغط "ابدأ" ومش بيقف لو قفلت الصفحة أو الإنترنت قطع.</li><li>كل إجابة بتتحفظ تلقائيًا، وتقدر ترجع تكمل من نفس المكان.</li><li>الاختياري بيتصحح تلقائيًا، والمقالي بيصححه المدرس يدويًا.</li><li>لما الوقت يخلص الامتحان بيتسلّم تلقائيًا.</li></ul>
   <div class="tips"><b>💡 نصايح قبل ما تبدأ:</b><ul><li>اتأكد إن النت ثابت والشاحن متوصل.</li><li>ابدأ بالاختياري وسيب المقالي لآخر وقت، ووزّع وقتك (حوالي 90 دقيقة للاختياري).</li><li>استخدم علامة 🚩 لأي سؤال محتاج يتراجع، وراجعه قبل التسليم.</li><li>اكتب المقالي بنقاط واضحة مع ذكر الأدلة التاريخية.</li></ul></div>
   <div class="helpbox" onclick="supportView()"><i>💬</i><div><b>الدعم والمنتدى</b>${unread ? `<span class="dot">${unread} رد جديد</span>` : ""}<br><small style="color:#7a5b10">عندك سؤال في المادة أو مشكلة في الموقع؟ ابعت لفريق الدعم العلمي أو الفني وهيردوا عليك هنا.</small></div></div>
   <div class="cta">${can ? `<div class="err" id="er"></div><button class="btn" id="st" style="font-size:19px;padding:15px 44px">ابدأ الامتحان</button>` : `<p class="err" style="font-size:16px">الامتحان غير متاح لك حاليًا. تواصل مع المدرس لفتح محاولة.</p>`}</div></div></div>`;
+  renderBanner(); refreshBell();
   if (can) $("#st").onclick = async () => {
     const ok = await modal("جاهز تبدأ؟", `هيبدأ العد التنازلي (${settings.duration_minutes} دقيقة) دلوقتي.`, [{ t: "ابدأ الآن", v: true }, { t: "رجوع", v: false, alt: true }]);
     if (!ok) return;
