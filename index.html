@@ -127,6 +127,14 @@ label.l{display:block;font-size:14px;font-weight:700;color:#4b5563;margin:14px 0
 .np .ni{display:flex;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line)}.np .ni.new{background:#fff8e6}.np .ni i{font-style:normal;flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px}
 .np .ni.info i{background:#e6f0ff}.np .ni.success i{background:#dff5e7}.np .ni.warning i{background:#fff1da}.np .ni.urgent i{background:#fde8e8}
 .np .ni b{display:block}.np .ni small{color:var(--mute)}.np .ni a{font-size:13px;font-weight:700}.np .em{padding:30px;text-align:center;color:var(--mute)}
+.honor{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--sh);overflow:hidden;margin-top:18px}
+.honor .hh{background:linear-gradient(135deg,#7a4b00,#c8a24a 60%,#f3d680);color:#3b2600;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}.honor .hh h2{margin:0;font-size:26px}.honor .hh small{opacity:.85;font-weight:600}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;padding:22px 14px 8px;background:linear-gradient(180deg,#fff8e6,#fff)}
+.podium .pc{flex:1;max-width:210px;text-align:center;border-radius:18px 18px 0 0;padding:14px 8px;background:#fff;border:1px solid var(--line)}.podium .pc .md{font-size:40px;line-height:1}.podium .pc b{display:block;margin-top:4px;word-break:break-word}.podium .pc span{color:var(--brand);font-weight:800;font-size:19px}
+.podium .p1{padding-top:30px;background:linear-gradient(180deg,#fff3c4,#fff);border-color:#e7c960;min-height:170px}.podium .p2{min-height:140px}.podium .p3{min-height:122px}
+.hl{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:11px 20px;border-top:1px solid var(--line)}.hl .rk{width:38px;height:38px;border-radius:50%;background:#f3eee3;display:grid;place-items:center;font-weight:800;color:var(--brand)}
+.hl.me{background:#fff4d6;font-weight:700}.hl small{color:var(--mute);display:block;font-weight:500}.hl .sc{font-weight:800;color:var(--brand);font-size:18px}
+.honor .me-line{padding:12px 22px;background:#f4f8ff;border-top:1px solid #cfe0ff;color:#1e3a8a;font-weight:700}.honor .em{padding:26px;text-align:center;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -269,7 +277,7 @@ async function authView(mode, msg = "") {
   };
 }
 
-const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm bell" onclick="toggleNotifs()" aria-label="الإشعارات">🔔<span class="nbd" id="nbd" style="display:${nUnread() ? "" : "none"}">${nUnread()}</span></button> <button class="btn alt sm" onclick="accountView()">👤 حسابي</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
+const topbar = (profile, unread = 0) => `<div class="topbar"><div class="logo" style="cursor:pointer" onclick="boot()"><b>📜</b> امتحان التاريخ</div><div>${esc(profile?.full_name)} <button class="btn alt sm" onclick="supportView()">💬 الدعم والمنتدى${unread ? `<span class="dot">${unread}</span>` : ""}</button> <button class="btn alt sm" onclick="honorView()">🏆 لوحة الشرف</button> <button class="btn alt sm bell" onclick="toggleNotifs()" aria-label="الإشعارات">🔔<span class="nbd" id="nbd" style="display:${nUnread() ? "" : "none"}">${nUnread()}</span></button> <button class="btn alt sm" onclick="accountView()">👤 حسابي</button> <button class="btn alt sm" onclick="logout()">خروج</button></div></div>`;
 async function logout() { await sb.auth.signOut(); location.reload(); }
 
 async function home(user) {
@@ -287,7 +295,7 @@ async function home(user) {
     const total = Number(a.total_override ?? (Number(a.mcq_score) + Number(a.essay_score) + Number(a.adjustment)));
     app.innerHTML = topbar(profile, unread || 0) + `<div class="wrap"><div id="banners"></div><div class="hcard"><div class="head"><h2>تم تسليم الامتحان ✅</h2><div>${esc(profile?.full_name)}</div></div>
     <div style="padding:26px;text-align:center">${a.graded ? `<div class="score" style="--p:100%"><div>${total}<small>درجتك النهائية</small></div></div><button class="btn" onclick="resultView('${a.id}')" style="margin-top:6px">📊 شوف أخطائي وإجاباتي والإحصائيات</button>` : `<p style="font-size:18px">إجاباتك اتسلّمت بنجاح 👏<br>الأسئلة المقالية بتتصحح يدويًا، وهتظهر درجتك هنا بعد اعتمادها من المدرس.</p>`}</div></div></div>`;
-    renderBanner(); refreshBell();
+    renderBanner(); refreshBell(); renderHonor();
     return;
   }
   const can = (a && a.status === "not_started") || (!a && settings.is_open && settings.allow_self_start);
@@ -297,7 +305,7 @@ async function home(user) {
   <div class="tips"><b>💡 نصايح قبل ما تبدأ:</b><ul><li>اتأكد إن النت ثابت والشاحن متوصل.</li><li>ابدأ بالاختياري وسيب المقالي لآخر وقت، ووزّع وقتك (حوالي 90 دقيقة للاختياري).</li><li>استخدم علامة 🚩 لأي سؤال محتاج يتراجع، وراجعه قبل التسليم.</li><li>اكتب المقالي بنقاط واضحة مع ذكر الأدلة التاريخية.</li></ul></div>
   <div class="helpbox" onclick="supportView()"><i>💬</i><div><b>الدعم والمنتدى</b>${unread ? `<span class="dot">${unread} رد جديد</span>` : ""}<br><small style="color:#7a5b10">عندك سؤال في المادة أو مشكلة في الموقع؟ ابعت لفريق الدعم العلمي أو الفني وهيردوا عليك هنا.</small></div></div>
   <div class="cta">${can ? `<div class="err" id="er"></div><button class="btn" id="st" style="font-size:19px;padding:15px 44px">ابدأ الامتحان</button>` : `<p class="err" style="font-size:16px">الامتحان غير متاح لك حاليًا. تواصل مع المدرس لفتح محاولة.</p>`}</div></div></div>`;
-  renderBanner(); refreshBell();
+  renderBanner(); refreshBell(); renderHonor();
   if (can) $("#st").onclick = async () => {
     const ok = await modal("جاهز تبدأ؟", `هيبدأ العد التنازلي (${settings.duration_minutes} دقيقة) دلوقتي.`, [{ t: "ابدأ الآن", v: true }, { t: "رجوع", v: false, alt: true }]);
     if (!ok) return;
@@ -563,6 +571,35 @@ function initBot() {
   fab.onclick = () => box.classList.toggle("open"); $("#botx").onclick = () => box.classList.remove("open");
 }
 initBot();
+
+/* ===== لوحة الشرف 🏆 (بتتحدث تلقائيًا بعد كل تصحيح معتمد) ===== */
+let HONOR = null, honorAt = null;
+const MEDALS = ["🥇", "🥈", "🥉"];
+function honorHTML(d) {
+  if (!d || d.enabled === false) return "";
+  const rows = d.rows || [], tm = honorAt ? honorAt.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }) : "";
+  const top = rows.filter((r) => r.pos <= 3).slice(0, 3), order = top.length === 3 ? [top[1], top[0], top[2]] : top;
+  const cls = (r) => "p" + Math.min(3, r.pos);
+  return `<div class="honor"><div class="hh"><h2>🏆 لوحة الشرف</h2><small>بتتحدث تلقائيًا بعد كل تصحيح${tm ? " • آخر تحديث " + tm : ""}</small></div>
+  ${rows.length ? `<div class="podium">${order.map((r) => `<div class="pc ${cls(r)}"><div class="md">${MEDALS[r.pos - 1] || "🏅"}</div><b>${esc(r.name)}</b><span>${Number(r.total)}${d.max ? " / " + d.max : ""}</span></div>`).join("")}</div>
+  ${rows.map((r) => `<div class="hl${r.me ? " me" : ""}"><div class="rk">${r.pos}</div><div>${esc(r.name)}${r.me ? " (أنت 👋)" : ""}${r.center ? `<small>${esc(r.center)}</small>` : ""}</div><div class="sc">${Number(r.total)}${d.max ? `<small>من ${d.max}</small>` : ""}</div></div>`).join("")}
+  ${d.me && !rows.some((r) => r.me) ? `<div class="me-line">ترتيبك: ${d.me.pos} من ${d.count} — درجتك ${Number(d.me.total)}</div>` : ""}` : `<div class="em">🕐 لسه مفيش درجات معتمدة. هتظهر الأسماء هنا أول ما المدرس يعتمد أول النتائج.</div>`}</div>`;
+}
+async function fetchHonor() { try { const { data, error } = await sb.rpc("get_honor_board"); if (!error && data) { HONOR = data; honorAt = new Date(); } } catch (e) {} return HONOR; }
+async function renderHonor() {
+  const w = document.querySelector("#app .wrap"); if (!w) return;
+  let box = $("#honorbox"); if (!box) { box = document.createElement("div"); box.id = "honorbox"; w.appendChild(box); }
+  if (HONOR) box.innerHTML = honorHTML(HONOR);
+  await fetchHonor(); const b2 = $("#honorbox"); if (b2) b2.innerHTML = honorHTML(HONOR);
+}
+setInterval(() => { if ($("#honorbox")) renderHonor(); }, 60000);
+async function honorView() {
+  clearInterval(timerId);
+  const { data: { user } } = await sb.auth.getUser();
+  const { data: profile } = await sb.from("profiles").select("full_name").eq("id", user.id).single();
+  app.innerHTML = topbar(profile, 0) + `<div class="wrap"><button class="btn alt sm" onclick="backHome()">← رجوع</button><div id="hv" style="margin-top:14px"><div class="card2" style="text-align:center">⏳ جارٍ التحميل...</div></div></div>`;
+  await fetchHonor(); const h = honorHTML(HONOR); $("#hv").innerHTML = h || `<div class="card2" style="text-align:center">لوحة الشرف غير متاحة حاليًا.</div>`;
+}
 
 boot();
 </script>
